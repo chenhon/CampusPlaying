@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PictureView">
+        <attr name="picture_type"><!--图片显示类型-->
+
+            <!--图片在home页显示模式,自适应显示，但最多显示9张图片-->
+            <flag name="home_type" value="0" />
+
+            <!--图片在详情页显示模式，自适应显示，无张数限制-->
+            <flag name="detail_type" value="1" />
+
+            <!--图片在发表界面显示模式,一行显示3张图片，无张数限制-->
+            <flag name="publish_type" value="2" />
+        </attr>
+    </declare-styleable>
+</resources>

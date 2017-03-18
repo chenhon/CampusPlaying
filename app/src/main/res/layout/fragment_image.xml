@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#deffffff"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/photo_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#444"
+        android:text="月份"
+        />
+
+    <com.android.tool.PictureView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:pv = "http://schemas.android.com/apk/res-auto"
+        pv:picture_type="detail_type">
+
+        <ImageView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/global_campus_playing_logo"/>
+        <ImageView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/global_campus_playing_logo"/>
+
+    </com.android.tool.PictureView>
+
+</LinearLayout>

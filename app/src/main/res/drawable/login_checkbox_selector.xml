@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 登录页面：(多选按钮)保持登录状态 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/global_login_unsaved" android:state_checked="false" android:state_enabled="true"/>
+    <item android:drawable="@drawable/global_login_saved" android:state_checked="true" android:state_enabled="true"/>
+
+</selector>

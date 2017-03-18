@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/statuses_item_interval"
+        android:background="#D7D7D7"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="#fff">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_avatar"
+                android:layout_height="28dp"
+                android:layout_width="28dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/global_campus_playing_logo"
+            />
+            <TextView
+                android:id="@+id/picture_source"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:maxLines="1"
+                android:textColor="#999999"
+                android:textSize="12sp"
+                android:ellipsize="end"
+                android:text="陈洪发布的照片"
+            />
+        </LinearLayout>
+
+        <com.android.tool.PictureView
+            android:id="@+id/picture_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            xmlns:pv = "http://schemas.android.com/apk/res-auto"
+            pv:picture_type="home_type">
+            <ImageView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+            <ImageView android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/global_campus_playing_logo"/>
+        </com.android.tool.PictureView>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/statuses_item_interval"
+        android:background="#D7D7D7"/>
+</LinearLayout>

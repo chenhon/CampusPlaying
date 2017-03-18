@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:id="@+id/left_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="40dp"
+        android:layout_gravity="left">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_avatar_left"
+            android:layout_margin="10dp"
+            android:layout_height="35dp"
+            android:layout_width="35dp"
+            android:layout_gravity="top"
+            android:src="@drawable/global_campus_playing_logo"
+        />
+        <TextView
+            android:id="@+id/received_msg"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:background="@drawable/message_left"
+            android:textColor="#444"
+            android:text="你好呀！"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/right_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_gravity="right">
+
+        <TextView
+            android:id="@+id/send_msg"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:background="@drawable/message_right"
+            android:text="你也好呀！"
+            android:textColor="#444"
+            />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_avatar_right"
+            android:layout_margin="10dp"
+            android:layout_height="35dp"
+            android:layout_width="35dp"
+            android:layout_gravity="top"
+            android:src="@drawable/global_campus_playing_logo"
+        />
+    </LinearLayout>
+
+</LinearLayout>

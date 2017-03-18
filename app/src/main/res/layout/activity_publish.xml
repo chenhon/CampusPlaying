@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <!--标题栏-->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="#fff"
+        android:padding="10dp">
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:text="取消"
+            android:textColor="#444"
+            android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="发布活动"
+            android:textColor="#444"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:text="发表"
+            android:textColor="#444"
+            android:textSize="18sp"/>
+    </FrameLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#D7D7D7"/>
+    <!--内容编辑-->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:padding="20dp">
+        <!--文字编辑区域-->
+        <EditText
+            android:id="@+id/activity_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:hint="请输入活动名称"
+            android:textSize="20dp"
+            android:textColor="#000"
+        />
+
+        <EditText
+            android:id="@+id/activity_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:minLines="5"
+            android:maxLines="7"
+            android:hint="请输入活动内容"
+            android:textSize="18dp"
+            android:textColor="#454545"
+            android:background="@null"
+        />
+
+        <!--图片添加区域-->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.android.tool.PictureView
+                android:id="@+id/picture_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                xmlns:pv = "http://schemas.android.com/apk/res-auto"
+                pv:picture_type="publish_type">
+                <ImageButton
+                    android:id="@+id/add_picture_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/add_picture_icon"/>
+            </com.android.tool.PictureView>
+        </ScrollView>
+    </LinearLayout>
+
+
+</LinearLayout>

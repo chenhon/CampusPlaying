@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Campus Playing</string>
+
+    <!-- 系统的登录界面 -->
+
+    <string name="UserName">用户名：</string>
+    <string name="Password">密\u0020\u0020\u0020\u0020码：</string>
+    <string name="Login">登\u0020\u0020\u0020\u0020录</string>
+    <string name="RememberUserName">记住用户名</string>
+    <string name="RememberPassword">记住密码</string>
+
+    <string name="PREFS_ISSAVED_KEY">aaa</string>
+    <string name="PREFS_ACCOUNT_KEY">bbb</string>
+    <string name="PREFS_PASSWORD_KEY">ccc</string>
+    <string name="DEC_KEY">DESCSDCKEY</string>
+
+    <string name="PersonPage">个人主页</string>
+
+    <!--URL地址-->
+    <string name="ROOT">http://develop.doris.work:8888/</string>
+
+
+    <!-- 系统提示 -->
+    <string name="LoginOutHint">再按一次退出应用</string>
+
+    <!-- 网络连接断开提醒 -->
+    <string name="network_fail">网络连接断开，请检查网络连接</string>
+
+</resources>
