@@ -19,11 +19,13 @@
     <!--URL地址-->
     <string name="ROOT">http://develop.doris.work:8888/</string>
 
-
     <!-- 系统提示 -->
     <string name="LoginOutHint">再按一次退出应用</string>
 
     <!-- 网络连接断开提醒 -->
     <string name="network_fail">网络连接断开，请检查网络连接</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

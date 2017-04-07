@@ -20,20 +20,22 @@ public class User {
      * relation : 0
      */
 
-    private String id;
+    private int id;
+    private String user;
     private String name;
     private int avatar;
     private String description;
-    private int followers_count;
-    private int fans_count;
-    private int activitys_count;
+    private int followersCount;
+    private int fansCount;
+    private int activitysCount;
     private int relation;
+    private int gender; //男0    女1
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -49,8 +51,26 @@ public class User {
         return avatar;
     }
 
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
     public void setAvatar(int avatar) {
         this.avatar = avatar;
+    }
+
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public int getGender() {
+        return gender;
     }
 
     public String getDescription() {
@@ -61,28 +81,28 @@ public class User {
         this.description = description;
     }
 
-    public int getFollowers_count() {
-        return followers_count;
+    public int getFollowersCount() {
+        return followersCount;
     }
 
-    public void setFollowers_count(int followers_count) {
-        this.followers_count = followers_count;
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
     }
 
-    public int getFans_count() {
-        return fans_count;
+    public int getFansCount() {
+        return fansCount;
     }
 
-    public void setFans_count(int fans_count) {
-        this.fans_count = fans_count;
+    public void setFansCount(int fansCount) {
+        this.fansCount = fansCount;
     }
 
-    public int getActivitys_count() {
-        return activitys_count;
+    public int getActivitysCount() {
+        return activitysCount;
     }
 
-    public void setActivitys_count(int activitys_count) {
-        this.activitys_count = activitys_count;
+    public void setActivitysCount(int activitys_count) {
+        this.activitysCount = activitysCount;
     }
 
     public int getRelation() {

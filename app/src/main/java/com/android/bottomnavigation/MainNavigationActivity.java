@@ -4,11 +4,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.android.R;
+import com.android.guide.BaseActivity;
 import com.android.person.PersonFragment;
 import com.android.remind.RemindFragment;
 import com.android.status.HomeFragment;
@@ -16,7 +16,7 @@ import com.android.status.RecommendFragment;
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 
-public class MainNavigationActivity extends AppCompatActivity implements BottomNavigationBar.OnTabSelectedListener{
+public class MainNavigationActivity extends BaseActivity implements BottomNavigationBar.OnTabSelectedListener{
     private static final int INTERVAL_TIME = 4000;
     private long exitTime;
     private FrameLayout mContentFrame;

@@ -8,34 +8,57 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/statuses_item_interval"
         android:background="#D7D7D7"/>
+    <!--title-->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:background="#fff">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/user_avatar"
-                android:layout_height="28dp"
-                android:layout_width="28dp"
-                android:layout_gravity="center_vertical"
+                android:layout_height="40dp"
+                android:layout_width="40dp"
+                android:layout_marginRight="10dp"
                 android:src="@drawable/global_campus_playing_logo"
             />
-            <TextView
-                android:id="@+id/notification_source"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:maxLines="1"
-                android:textColor="#999999"
-                android:textSize="12sp"
-                android:ellipsize="end"
-                android:text="陈洪发布了新的通知"
-            />
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/user_name"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textColor="#444444"
+                        android:textSize="15sp"
+                        android:text="活动发布人"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/published_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textColor="#b4444444"
+                    android:textSize="12sp"
+                    android:text="2017-03-10"/>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -68,7 +91,7 @@
         </LinearLayout>
     </LinearLayout>
     <View
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/statuses_item_interval"
-    android:background="#D7D7D7"/>
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/statuses_item_interval"
+        android:background="#D7D7D7"/>
 </LinearLayout>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <!--标题栏-->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="#fff"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center_vertical">
+        <ImageView
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/global_back"/>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="注册"
+            android:textColor="#444"
+            android:textSize="20sp"/>
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#D7D7D7"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:id="@+id/tvUser"
+                android:text="用  户  名"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+            <EditText
+                android:id="@+id/etUser"
+                android:padding="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:hint="请输入用户名"
+                android:selectAllOnFocus="true" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:id="@+id/tvName"
+                android:text="昵       称"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+            <EditText
+                android:id="@+id/etName"
+                android:padding="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:hint="请输入昵称"
+                android:selectAllOnFocus="true" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:id="@+id/tvPassword"
+                android:text="密       码"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+            <EditText
+                android:id="@+id/etPassword"
+                android:padding="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:textSize="16sp"
+                android:inputType="textPassword"
+                android:hint="请输入密码"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:id="@+id/tvPasswordConfirm"
+                android:text="密码确认"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+            <EditText
+                android:id="@+id/etPasswordConfirm"
+                android:padding="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:textSize="16sp"
+                android:inputType="textPassword"
+                android:hint="请确认密码"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:id="@+id/tvDescription"
+                android:text="签       名"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+            <EditText
+                android:id="@+id/edDescription"
+                android:padding="10dp"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:textSize="16sp"
+                android:hint="请输入签名"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:id="@+id/tvGender"
+                android:text="性       别"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"/>
+
+            <RadioGroup
+                android:id="@+id/rgSex"
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dip"
+                android:orientation="horizontal" >
+                <RadioButton
+                    android:id="@+id/rbrgMale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:checked="true"
+                    android:text="男" />
+                <RadioButton
+                    android:id="@+id/rbrgFemale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:text="女"
+                    android:layout_marginLeft="20dp" />
+            </RadioGroup>
+
+            <com.android.tool.PictureView
+                android:id="@+id/picture_group"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginRight="20dp"
+                android:layout_height="wrap_content"
+                xmlns:pv = "http://schemas.android.com/apk/res-auto"
+                pv:picture_type="home_type">
+                <TextView
+                    android:id="@+id/tvAvatar"
+                    android:drawableTop="@drawable/upload_image_icon"
+                    android:text="点击上传头像"
+                    android:textSize="9sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:textColor="#8a8a8a"/>
+            </com.android.tool.PictureView>
+        </LinearLayout>
+
+
+        <!--登录按钮-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/register_but"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#dc3939"
+                android:gravity="center"
+                android:text="注册"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+

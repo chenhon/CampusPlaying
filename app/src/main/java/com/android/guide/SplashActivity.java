@@ -4,14 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.android.R;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
 
     private static final int GO_LOGIN = 1;//进入用户登录页
     private static final int SPLASH_DELAY_MILLIS = 1000; //1s延时
@@ -81,7 +80,8 @@ public class SplashActivity extends AppCompatActivity {
 
     //进入登录界面
     private void goLogin() {
-        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        //Intent intent = new Intent(SplashActivity.this, PublishActivity.class);
         SplashActivity.this.startActivity(intent);
         SplashActivity.this.finish();
     }

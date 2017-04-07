@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--根据通知是发布过程还是查看过程，显示有所不同，查看时，发布按钮不加-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:background="#FFFFFF">
+        <ImageView
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/global_back"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="通知详情"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColor="#444444"
+            android:textSize="17sp" />
+
+        <Button
+            android:id="@+id/send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="#f0ffffff"
+            android:text="发布"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColor="#444444"
+            android:textSize="17sp" />
+
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/statuses_item_interval"
+        android:background="#D7D7D7"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
+        <!--android:gravity="center"-->
+        <EditText
+            android:id="@+id/notification_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_edittext_normal_shape"
+            android:padding="5dp"
+            android:textColorHint="#AAAAAA"
+            android:textSize="15dip"
+            android:hint="请输入通知标题..."
+        />
+        <EditText
+            android:id="@+id/notification_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:minLines="5"
+            android:maxLines="15"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_edittext_normal_shape"
+            android:padding="5dp"
+            android:textColorHint="#AAAAAA"
+            android:textSize="15dip"
+            android:hint="请输入通知信息..."
+        />
+
+
+    </LinearLayout>
+
+</LinearLayout>

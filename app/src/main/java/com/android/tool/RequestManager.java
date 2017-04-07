@@ -41,7 +41,7 @@ public class RequestManager {
             request.setTag(tag);
         }
         mRequestQueue = GlobalApplication.get().getRequestQueue();
-        request.setRetryPolicy(new DefaultRetryPolicy(5000000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
+        request.setRetryPolicy(new DefaultRetryPolicy(400*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         mRequestQueue.add(request);
     }
 	

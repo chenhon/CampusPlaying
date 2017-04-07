@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D7D7D7"
+    android:background="#fff"
     >
     <!--title-->
     <LinearLayout
@@ -31,68 +31,58 @@
             android:src="@drawable/refresh"/>
 
     </LinearLayout>
-    <!--分隔线-->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/llSearchFrame" />
 
-    <!--刷新-->
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
+
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/swipyrefreshlayout"
+        android:layout_width="match_parent"
         android:layout_below="@+id/llSearchFrame"
-        android:background="#fff"
-        android:layout_marginTop="3dp"
+        android:layout_height="wrap_content"
+        app:srl_direction="both">
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ScrollView
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:overScrollMode="never">
+        <!--ScrollView中只能放置一个直接子布局-->
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:overScrollMode="never">
-            <!--ScrollView中只能放置一个直接子布局-->
-            <LinearLayout
-                android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="热门活动"
-                    android:layout_marginBottom="2dp"
-                />
-                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_height="170dp"
+                android:orientation="vertical" >
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/viewpager"
                     android:layout_width="match_parent"
-                    android:layout_height="170dp"
-                    android:orientation="vertical" >
-
-                    <android.support.v4.view.ViewPager
-                        android:id="@+id/viewpager"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
+                    android:layout_height="match_parent" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left|bottom"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <!--热门活动标题-->
                     <TextView
                         android:id="@+id/hot_activity_title"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:layout_above="@+id/ll"
-                        android:layout_marginLeft="10dp"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:text="活动标题"/>
+
+                    <!--分页指示点-->
                     <LinearLayout
                         android:id="@+id/ll"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="right"
-                        android:layout_marginBottom="24.0dp"
                         android:orientation="horizontal" >
 
                         <ImageView
@@ -100,7 +90,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:clickable="true"
-                            android:padding="15.0dip"
+                            android:padding="5.0dip"
                             android:src="@drawable/global_recommend_dot" />
 
                         <ImageView
@@ -108,7 +98,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:clickable="true"
-                            android:padding="15.0dip"
+                            android:padding="5.0dip"
                             android:src="@drawable/global_recommend_dot" />
 
                         <ImageView
@@ -116,7 +106,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:clickable="true"
-                            android:padding="15.0dip"
+                            android:padding="5.0dip"
                             android:src="@drawable/global_recommend_dot" />
 
                         <ImageView
@@ -124,96 +114,67 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:clickable="true"
-                            android:padding="15.0dip"
+                            android:padding="5.0dip"
                             android:src="@drawable/global_recommend_dot" />
                     </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/statuses_item_interval"
+                android:background="#D7D7D7"/>
 
-                </RelativeLayout>
+            <!--推荐用户-->
+
+            <LinearLayout
+                android:id="@+id/ll_recommend_user"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <FrameLayout
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:text="推荐用户"
+                        android:layout_marginBottom="2dp"
+                    />
+                    <TextView
+                        android:id="@+id/change_users_page"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="换一组"
+                        android:layout_marginBottom="2dp"
+                    />
+                </FrameLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="10dp"
+                />
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/statuses_item_interval"
                     android:background="#D7D7D7"/>
-<!--
-                &lt;!&ndash;热门活动&ndash;&gt;
-                <LinearLayout
-                    android:id="@+id/ll_hot_activity"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="热门活动"
-                        android:layout_marginBottom="2dp"
-                    />
-                    <android.support.v7.widget.RecyclerView
-                        android:layout_marginRight="@dimen/activity_horizontal_margin"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                        android:id="@+id/rv_hot_activity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                    />
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/statuses_item_interval"
-                        android:background="#D7D7D7"/>
-                </LinearLayout>
--->
-
-                <!--推荐用户-->
-
-                <LinearLayout
-                    android:id="@+id/ll_recommend_user"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <FrameLayout
-                        android:paddingLeft="@dimen/activity_horizontal_margin"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="left"
-                            android:text="推荐用户"
-                            android:layout_marginBottom="2dp"
-                        />
-                        <!--<TextView-->
-                            <!--android:id="@+id/show_all_recommend_users"-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_gravity="right"-->
-                            <!--android:text="显示全部"-->
-                            <!--android:layout_marginBottom="2dp"-->
-                        <!--/>-->
-                    </FrameLayout>
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_user"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/activity_horizontal_margin"
-                        android:paddingRight="@dimen/activity_horizontal_margin"
-                        android:layout_marginBottom="10dp"
-                    />
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/statuses_item_interval"
-                        android:background="#D7D7D7"/>
-                </LinearLayout>
-
-                <!--推荐活动-->
-                <!--这里直接往LinearLayout中添加item项-->
-                <LinearLayout
-                    android:id="@+id/ll_recommend_activity"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
             </LinearLayout>
-        </ScrollView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+
+            <!--推荐活动-->
+            <ListView
+                android:id="@+id/lv_recommend_activity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+      </ScrollView>
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_activity_button"

@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--还要加入最近时间和未读私信红点-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@drawable/bg_item_selector">
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:background="@drawable/bg_edittext_selector">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_avatar"
-        android:layout_height="38dp"
-        android:layout_width="38dp"
+        android:layout_height="40dp"
+        android:layout_width="40dp"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="10dp"
         android:src="@drawable/global_campus_playing_logo"
     />
     
     <LinearLayout 
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:orientation="vertical">
         <TextView
-            android:id="@+id/msg_publisher"
+            android:id="@+id/user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -38,5 +43,31 @@
             android:ellipsize="end"
             android:textSize="13sp"
             android:text="msg内容msg内容msg内容msg内容msg内容msg内容msg内容msg内容msg内容msg内容"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/msg_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#444444"
+            android:textSize="15sp"
+            android:text="2017-03-10"/>
+        <TextView
+            android:id="@+id/msg_no_read_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/red_dot"
+            android:layout_gravity="right"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:text="99+"
+            android:textSize="13sp"
+            />
     </LinearLayout>
 </LinearLayout>

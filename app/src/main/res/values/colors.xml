@@ -7,11 +7,15 @@
     <color name="titleColor">#4060ff</color>
     <color name="button_Color">#4060ff</color>
 
+    <color name="check_selected">#f8cc4c4c</color>
+    <color name="check_unselected">#878787</color>
 
     <color name="login_saved">#5471f4</color>
     <color name="login_unsaved">#878787</color>
 
-    <color name="floating_button">#5bdfd9</color>>
+    <color name="floating_button">#5bdfd9</color>
+    <color name="tag_unselected">#7690A5</color>
+
 
     <color name="ccc">#33333333</color>
 </resources>

@@ -45,7 +45,9 @@ public class BaseActivity extends AppCompatActivity {
 				Toast.makeText(activity, "网络繁忙，请稍后再试", Toast.LENGTH_SHORT).show();
 			}else 	*/
                 Toast.makeText(BaseActivity.this, "请检查网络连接", Toast.LENGTH_SHORT).show();
-
+                Log.e("getTIMELINE:TAG", error.getMessage(), error);
+                byte[] htmlBodyBytes = error.networkResponse.data;
+                Log.e("getTIMELINE:TAG", new String(htmlBodyBytes), error);
                 //}
             }
         };

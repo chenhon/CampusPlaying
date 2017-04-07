@@ -11,45 +11,41 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:background="#fff"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/back_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:src="@drawable/global_back"/>
         <Spinner
             android:id="@+id/spinner1"
-            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:entries="@array/searchTypes"/>
         <FrameLayout
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/search_et_input"
+                android:id="@+id/et_search_input"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="10dp"
-                android:drawableLeft="@drawable/search_icon"
-                android:drawablePadding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/search_edittext_shape"
                 android:textSize="16sp"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:hint="请输入关键字"/>
 
             <ImageView
+                android:id="@+id/iv_search_delete"
                 android:visibility="gone"
                 android:layout_marginRight="20dp"
                 android:src="@drawable/search_delete_bg"
-                android:id="@+id/search_iv_delete"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_vertical|right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </FrameLayout>
@@ -68,7 +64,13 @@
         android:text="搜索"/>
 
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#D7D7D7"/>
+
     <LinearLayout
+        android:id="@+id/ll_activity_tag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -85,15 +87,82 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <!--聚餐、运动、旅行、电影、音乐、分享会、赛事、桌游、其他-->
-            <TextView style="@style/text_tag_01_style" android:text="聚餐"  />
-            <TextView style="@style/text_tag_01_style" android:text="运动"  />
-            <TextView style="@style/text_tag_01_style" android:text="旅行"  />
-            <TextView style="@style/text_tag_01_style" android:text="电影"  />
-            <TextView style="@style/text_tag_01_style" android:text="音乐"  />
-            <TextView style="@style/text_tag_01_style" android:text="分享会"  />
-            <TextView style="@style/text_tag_01_style" android:text="赛事"  />
-            <TextView style="@style/text_tag_01_style" android:text="桌游"  />
-            <TextView style="@style/text_tag_01_style" android:text="其他"  />
+            <TextView style="@style/text_tag_02_style" android:text="聚餐"  />
+            <TextView style="@style/text_tag_02_style" android:text="运动"  />
+            <TextView style="@style/text_tag_02_style" android:text="旅行"  />
+            <TextView style="@style/text_tag_02_style" android:text="电影"  />
+            <TextView style="@style/text_tag_02_style" android:text="音乐"  />
+            <TextView style="@style/text_tag_02_style" android:text="分享会"  />
+            <TextView style="@style/text_tag_02_style" android:text="赛事"  />
+            <TextView style="@style/text_tag_02_style" android:text="桌游"  />
+            <TextView style="@style/text_tag_02_style" android:text="其他"  />
         </com.android.tool.FlowLayout>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_order"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#fff">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="活动排序"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_order_bytime"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_order_bytime"
+                android:gravity="center_horizontal"
+                android:textColor="@color/check_selected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="时间"/>
+        </LinearLayout>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#D7D7D7"/>
+        <LinearLayout
+            android:id="@+id/ll_order_byhot"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_order_byhot"
+                android:textColor="@color/check_unselected"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="热度"/>
+        </LinearLayout>
+    </LinearLayout>
+    <!--下面放置活动列表-->
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        xmlns:ptr = "http://schemas.android.com/apk/res-auto"
+        android:id="@+id/pullListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="1dp"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
+        ptr:ptrMode="both"/>
+
 </LinearLayout>

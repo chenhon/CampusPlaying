@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootview"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,6 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="#fff"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:padding="10dp">
         <TextView
             android:id="@+id/cancel"
@@ -20,6 +23,7 @@
             android:textColor="#444"
             android:textSize="18sp"/>
         <TextView
+            android:id="@+id/page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -35,6 +39,15 @@
             android:textColor="#444"
             android:textSize="18sp"/>
     </FrameLayout>
+    <ScrollView
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -71,25 +84,234 @@
             android:textColor="#454545"
             android:background="@null"
         />
+        <!--活动图片-->
+        <LinearLayout
 
-        <!--图片添加区域-->
-        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.android.tool.PictureView
-                android:id="@+id/picture_group"
-                android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                xmlns:pv = "http://schemas.android.com/apk/res-auto"
-                pv:picture_type="publish_type">
-                <ImageButton
-                    android:id="@+id/add_picture_button"
+                android:src="@drawable/detail_upload_picture"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动图片"/>
+            <TextView
+                android:id="@+id/picture_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择图片"/>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/upload_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+        />
+<!--        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="图片上传"/>
+
+        </LinearLayout>-->
+
+        <!--活动时间-->
+        <LinearLayout
+            android:id="@+id/ll_activity_time"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_time"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动时间"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="起始时间"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" —— "/>
+            <TextView
+                android:id="@+id/start_time_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点击设置"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="结束时间"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" —— "/>
+            <TextView
+                android:id="@+id/end_time_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点击设置"/>
+
+        </LinearLayout>
+
+        <!--地图-->
+        <LinearLayout
+            android:id="@+id/ll_to_map"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_location"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动地点"/>
+            <TextView
+                android:id="@+id/address_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置地点"/>
+        </LinearLayout>
+
+        <!--费用-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_money"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动费用"/>
+            <EditText
+                android:id="@+id/activity_fee_set"
+                android:layout_width="60sp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edittext_normal_shape"
+                android:inputType="number" />
+            <TextView
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="元"/>
+        </LinearLayout>
+        <!--费用-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_type"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动类型"/>
+
+            <TextView
+                android:id="@+id/activity_type_set"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置类型"/>
+        </LinearLayout>
+
+        <!--活动标签-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:gravity="center_vertical">
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/add_picture_icon"/>
-            </com.android.tool.PictureView>
-        </ScrollView>
+                    android:src="@drawable/detail_tag"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="4dp"
+                    android:textColor="#444444"
+                    android:textSize="20sp"
+                    android:text="活动标签"/>
+                <TextView
+                    android:id="@+id/set_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="添加标签"/>
+            </LinearLayout>
+
+            <!--标签内容-->
+            <com.android.tool.FlowLayout
+                android:id="@+id/activity_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!--标签需要动态加载进来，所以这里讲每个标签都弄成一个布局的形式-->
+                <!-- <include layout="@layout/text_tag_unit"/>-->
+            </com.android.tool.FlowLayout>
+        </LinearLayout>
+
     </LinearLayout>
-
-
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

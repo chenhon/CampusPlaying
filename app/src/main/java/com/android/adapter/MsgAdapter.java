@@ -17,13 +17,16 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Administrator on 2016/12/11 0011.
- *
+ *  对话界面的list适配器
  * 这里应该还要有一个获取图片的函数
  */
 
 public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
     private List<Private> msgs = new ArrayList();
     static class ViewHolder extends RecyclerView.ViewHolder{
+        CircleImageView user_avatar;
+
+
         LinearLayout receivedLayout;
         LinearLayout sendLayout;
         TextView receivedMsg;

@@ -27,7 +27,7 @@ public class Activity {
      * created_at : 2121211212
      */
 
-    private String id;
+    private int id;
     private String title;
     private int image;
     private int state;
@@ -47,11 +47,11 @@ public class Activity {
     private int photo_count;
     private int created_at;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

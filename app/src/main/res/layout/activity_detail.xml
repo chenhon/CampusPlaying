@@ -52,13 +52,13 @@
             android:orientation="vertical">
             <!--活动头图-->
             <com.android.tool.PictureView
-                android:id="@+id/activity_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="30dp"
                 xmlns:pv = "http://schemas.android.com/apk/res-auto"
                 pv:picture_type="home_type">
                 <ImageView
+                    android:id="@+id/activity_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/global_campus_playing_logo"/>
@@ -126,7 +126,7 @@
                         android:padding="2dp"
                         android:background="@drawable/bg_edittext_normal_shape">
                         <CheckBox
-                            android:id="@+id/no_join_activity"
+                            android:id="@+id/join_activity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
@@ -144,7 +144,7 @@
                         android:padding="2dp"
                         android:background="@drawable/bg_edittext_normal_shape">
                         <CheckBox
-                            android:id="@+id/join_activity"
+                            android:id="@+id/no_join_activity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
@@ -276,7 +276,7 @@
                 android:text="约20元"/>
         </LinearLayout>
 
-        <!--人数-->
+        <!--&lt;!&ndash;人数&ndash;&gt;
         <LinearLayout
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
@@ -305,7 +305,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="20人"/>
-        </LinearLayout>
+        </LinearLayout>-->
 
         <!--发起人-->
         <LinearLayout
@@ -333,6 +333,7 @@
                 android:textSize="20sp"
                 android:text="活动发起人"/>
             <TextView
+                android:id="@+id/publisher_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="洪豆"/>
@@ -402,6 +403,37 @@
                 android:src="@drawable/detail_expand"/>
         </LinearLayout>
 
+        <!--活动照片-->
+        <LinearLayout
+            android:id="@+id/ll_to_picture"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bg_edittext_selector"
+            android:gravity="center_vertical"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_picture"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="活动照片"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_expand"/>
+        </LinearLayout>
             <!--活动标签-->
         <LinearLayout
             android:layout_width="match_parent"
@@ -448,36 +480,7 @@
             </com.android.tool.FlowLayout>
         </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#D7D7D7"/>
-        <!--活动照片-->
-        <LinearLayout
-            android:id="@+id/ll_to_picture"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="@drawable/bg_edittext_selector"
-            android:gravity="center_vertical"
-            android:paddingBottom="7dp"
-            android:paddingTop="7dp">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/detail_picture"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp"
-                android:textColor="#444444"
-                android:textSize="20sp"
-                android:text="活动照片"/>
-        </LinearLayout>
+
 <!--暂时还没放图片-->
             <!--活动的详情-->
         <LinearLayout
@@ -520,6 +523,38 @@
                 android:layout_height="wrap_content">
 
             </LinearLayout>-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/comment_count"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textColor="#444444"
+                    android:textSize="15sp"
+                    android:text="评论(0)"/>
+                <ImageView
+                    android:id="@+id/do_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/recommend"/>
+            </LinearLayout>
+            <!--放置评论list-->
+            <FrameLayout
+                android:id="@+id/commend_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </FrameLayout>
         </LinearLayout>
     </ScrollView>
 

@@ -18,7 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/global_back"/>
+            android:src="@drawable/global_back"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/page_title"
@@ -75,6 +76,7 @@
             android:layout_margin="16dp"
             android:padding="4dp"
             android:background="@drawable/bg_item_selector"
+            android:visibility="gone"
             android:text="关 注"/>
 
     </RelativeLayout>
@@ -103,7 +105,7 @@
             android:layout_width="1dp"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/album"
+            android:id="@+id/to_album"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -120,7 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp">
         <LinearLayout
-            android:id="@+id/join_activity"
+            android:id="@+id/to_join_activity"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -147,7 +149,7 @@
             android:layout_width="1dp"
             android:layout_height="match_parent"/>
         <LinearLayout
-            android:id="@+id/attention_person"
+            android:id="@+id/to_attention_person"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -174,7 +176,7 @@
             android:layout_width="1dp"
             android:layout_height="match_parent"/>
         <LinearLayout
-            android:id="@+id/attention_me"
+            android:id="@+id/to_fans"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -190,7 +192,7 @@
                 android:layout_gravity="left"
                 android:textSize="15sp"/>
             <TextView
-                android:id="@+id/attention_me_num"
+                android:id="@+id/fans_num"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="10"

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:background="#c4bbbb"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:background="#FFFFFF">
+        >
         <ImageView
             android:id="@+id/back_btn"
             android:layout_width="wrap_content"
@@ -29,7 +29,26 @@
             android:textColor="#444444"
             android:textSize="17sp" />
     </RelativeLayout>
-    <!--想了一下，这里弄成ListView比较好一些-->
-    <include layout="@layout/fragment_image"/>
+    <!--分隔线-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#D7D7D7"/>
+
+    <!--下面放置相册列表 album_listitem-->
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        xmlns:ptr = "http://schemas.android.com/apk/res-auto"
+        android:id="@+id/albumPullListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="1dp"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
+        ptr:ptrMode="both"/>
 </LinearLayout>
 

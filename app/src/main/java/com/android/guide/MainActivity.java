@@ -1,7 +1,9 @@
 package com.android.guide;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,14 +12,20 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.R;
 import com.android.bottomnavigation.MainNavigationActivity;
 import com.android.tool.CyptoUtils;
+import com.android.tool.MyImageRequest;
 import com.android.tool.MyStringRequest;
+import com.android.tool.NetworkConnectStatus;
+import com.android.tool.ProgressHUD;
 import com.android.tool.VolleyRequestParams;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,8 +44,13 @@ public class MainActivity extends BaseActivity {
     private EditText username, password;
     private CheckBox statusSave;
     private Button loginButton;
+    private Button registerButton;
 
     private String rootString;
+    private NetworkConnectStatus networkStatus;//网络连接状态
+    private MyStringRequest mStringRequest;
+    private RequestQueue mQueue;
+    private ProgressHUD mProgressHUD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +62,8 @@ public class MainActivity extends BaseActivity {
         PREFS_PASSWORD_KEY = getResources().getString(R.string.PREFS_PASSWORD_KEY);
         DEC_KEY = getResources().getString(R.string.DEC_KEY);
 
-        rootString = getResources().getString(R.string.ROOT);
+        rootString = getResources().getString(R.string.ROOT)+"token";
+        networkStatus = new NetworkConnectStatus(this);
 
         initView();
         loadAccountData();
@@ -64,6 +78,7 @@ public class MainActivity extends BaseActivity {
         password = (EditText)findViewById(R.id.pass_word);
         statusSave = (CheckBox)findViewById(R.id.status_save);
         loginButton = (Button)findViewById(R.id.login_but);
+        registerButton = (Button)findViewById(R.id.register_but);
     }
 
     /**
@@ -124,13 +139,14 @@ public class MainActivity extends BaseActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              //  doLogin();
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this, MainNavigationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                //     intent.setClass(MainActivity.this, CommunicateActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                doLogin();
+            }
+        });
 
-                startActivity(intent);
-                MainActivity.this.finish();
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RegisterActivity.startActivity(MainActivity.this);
             }
         });
     }
@@ -153,41 +169,127 @@ public class MainActivity extends BaseActivity {
      */
     private void doLogin() {
         SaveAccountData(); //数据保存
-        VolleyRequestParams params = new VolleyRequestParams().with("user",username.getText().toString())
-                .with("password",password.getText().toString())
-                .with("grant_type","password");
-        executeRequest(new MyStringRequest(Request.Method.POST, rootString + "token", params, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if ("null".equals(response) || null == response) {
-                    //登录未获取响应，登录失败
-                    return;
+        if (networkStatus.isConnectInternet()) {
+            mProgressHUD = ProgressHUD.show(MainActivity.this, "登录中...", true, true, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mProgressHUD.dismiss();
                 }
-                try {
-                    Log.e("MainActivity:login:TAG", response);
-                    JSONObject jsonObj = new JSONObject(response);
-                    GlobalApplication.setToken(jsonObj.getString("access_token"));
-
-                    handleResult(jsonObj);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            });
+            VolleyRequestParams bodyParams = new VolleyRequestParams()
+                    .with("user", username.getText().toString())
+                    .with("password", password.getText().toString())
+                    .with("grant_type", "password");
+            VolleyRequestParams headerParams = new VolleyRequestParams()
+                   // .with("token", GlobalApplication.getToken())
+                    .with("Accept","application/json"); // 数据格式设置为json
+            mStringRequest = new MyStringRequest(Request.Method.POST, rootString, headerParams, bodyParams,
+                    new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    if ("null".equals(response) || null == response) {
+                        //登录未获取响应，登录失败
+                        Toast.makeText(MainActivity.this, "登录失败".toString(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        Log.e("MainActivity:login:TAG", response);
+                        handleResult(response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        },errorListener()));
-
-
+            }, errorListener());
+            executeRequest(mStringRequest);
+//            mQueue = GlobalApplication.get().getRequestQueue();
+//            mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
+//            mQueue.add(mStringRequest);
+        } else{
+            Toast.makeText(this, getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void handleResult(JSONObject jsonObj) {
-
+    private void handleResult(String response) {
         try {
-            GlobalApplication.setUserId(jsonObj.getString("user_id"));//保存用户ID
+            JSONObject jsonObj = new JSONObject(response);
+            //Toast.makeText(MainActivity.this, "user_id"+jsonObj.getInt("user_id"), Toast.LENGTH_SHORT).show();
+            GlobalApplication.setToken(jsonObj.getString("access_token"));//保存token
+            GlobalApplication.getMySelf().setId(jsonObj.getInt("user_id"));//保存用户ID
+            getUserInfo(jsonObj.getInt("user_id"));
+
         } catch (JSONException e) {
             e.printStackTrace();
+            Toast.makeText(MainActivity.this, "登录失败".toString(), Toast.LENGTH_SHORT).show();
         }
-        Intent intent = new Intent();
-        intent.setClass(MainActivity.this, MainNavigationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        MainActivity.this.finish();
+    }
+
+    /**
+     * 获取账号信息
+     * @param userId
+     */
+    private void getUserInfo(int userId) {
+        VolleyRequestParams headerParams = new VolleyRequestParams()
+                .with("token", GlobalApplication.getToken())
+                .with("Accept","application/json"); // 数据格式设置为json
+        //Toast.makeText(MainActivity.this, "getUserInfo", Toast.LENGTH_SHORT).show();
+        mStringRequest = new MyStringRequest(Request.Method.GET, getResources().getString(R.string.ROOT)+"user/"+userId, headerParams, null,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                    try {
+                        Log.e("MainActivity:login:TAG", response);
+                        JSONObject jsObject= new JSONObject(response);
+                        GlobalApplication.getMySelf().setDescription(jsObject.getString("description"));
+                        GlobalApplication.getMySelf().setUser(jsObject.getString("user"));
+                        GlobalApplication.getMySelf().setName(jsObject.getString("name"));
+                        GlobalApplication.getMySelf().setAvatar(jsObject.getInt("avatar"));
+                        GlobalApplication.getMySelf().setGender(jsObject.getInt("gender"));
+                        GlobalApplication.getMySelf().setFollowersCount(jsObject.getInt("followers_count"));
+                        GlobalApplication.getMySelf().setFansCount(jsObject.getInt("fans_count"));
+                        GlobalApplication.getMySelf().setAvatar(jsObject.getInt("activities_count"));
+                       // GlobalApplication.setMyAvatar(mUploadAvatar);
+                        getAvatar(jsObject.getInt("avatar"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "登录失败1".toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    }
+                }, errorListener());
+        executeRequest(mStringRequest);
+    }
+
+    /**
+     * 获取用户头像
+     * @param mediaId
+     */
+    private void getAvatar(int mediaId) {
+        mQueue = GlobalApplication.get().getRequestQueue();
+        MyImageRequest avatarImageRequest = new MyImageRequest(
+                getResources().getString(R.string.ROOT) + "media/" + mediaId
+                , new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                try {
+                    mProgressHUD.dismiss();
+                    GlobalApplication.setMyAvatar(response);
+                    //应该有一个错误提醒字段
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, MainNavigationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    MainActivity.this.finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "登录失败2".toString(), Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        }, 0, 0, Bitmap.Config.RGB_565
+                , new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, "登录失败3".toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        mQueue.add(avatarImageRequest);
     }
 }

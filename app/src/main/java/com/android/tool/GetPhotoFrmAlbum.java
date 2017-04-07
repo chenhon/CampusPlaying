@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 public class GetPhotoFrmAlbum {
     /**
-     * 从手机相中获取图片
+     * 从手机相册中获取图片
      * 打开相册需要 授权程序SD卡读写的权利
      * 首先判断是否得到授权，得到则直接打开相册进行处理， 结果回调onActivityResult 函数来完成相关操作
      * 否则进行运行时权限请求，权限授权情况由回调 onRequestPermissionsResult处理
@@ -37,6 +37,7 @@ public class GetPhotoFrmAlbum {
             openAlbumForResult(activity, requestCode);
         }
     }
+
 
     public static void openAlbumForResult(Activity activity, int requestCode) {
         Intent intent = new Intent("android.intent.action.GET_CONTENT");

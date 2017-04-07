@@ -1,7 +1,6 @@
 package com.android.person;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import com.android.R;
 import com.android.adapter.MsgAdapter;
+import com.android.guide.BaseActivity;
 import com.android.model.Private;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CommunicateActivity extends AppCompatActivity {
+public class CommunicateActivity extends BaseActivity {
 
     @BindView(R.id.back_btn)
     ImageView mBackBtn;

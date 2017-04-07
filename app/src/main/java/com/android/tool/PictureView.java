@@ -3,6 +3,7 @@ package com.android.tool;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -10,6 +11,8 @@ import com.android.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -134,8 +137,8 @@ public class PictureView extends ViewGroup {
                         heightSize = widthSize / 2;
                     } else if (childCount == 5 || childCount == 6) {
                         heightSize = widthSize * 2 / 3;
-                    } else if (childCount > 6) {
-                        heightSize = (childCount + 2) / 3 * widthSize;
+                    } else if (childCount > 6) { //有问题？？？？？？这里之前少除了3
+                        heightSize = (childCount + 2) / 3 * widthSize/3;
                     }
 
                     if (childCount > 4) {
@@ -154,6 +157,7 @@ public class PictureView extends ViewGroup {
 
         }
 
+        Log.d(TAG, "heightSize:" + heightSize + "widthSize" + widthSize+"childCount" + childCount);
         setMeasuredDimension(widthSize, heightSize);//该容器的尺寸
 
         for (int i = 0; i < childCount; i++) {//每个孩子的尺寸都相同
@@ -242,6 +246,10 @@ public class PictureView extends ViewGroup {
         //this.addView(v, getChildCount()-1);//加入孩子
         this.addView(child, index);
         requestLayout();//给孩子重新布局
+    }
+
+    public void removeChildView(int index) {
+        this.removeViewAt(index);
     }
 
 

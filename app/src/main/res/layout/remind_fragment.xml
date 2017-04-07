@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <!--@我的-->
+<!--        &lt;!&ndash;@我的&ndash;&gt;
         <LinearLayout
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
@@ -55,10 +55,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/detail_expand"/>
-        </LinearLayout>
+        </LinearLayout>-->
 
         <!--评论项-->
         <LinearLayout
+            android:id="@+id/ll_to_comment"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -91,6 +92,7 @@
 
         <!--系统消息项-->
         <LinearLayout
+            android:id="@+id/ll_to_system_notify"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -121,5 +123,27 @@
                 android:src="@drawable/detail_expand"/>
         </LinearLayout>
     </LinearLayout>
+    <!--下面放置私信列表 msg_listitem-->
+    <!--能够上下拉刷新-->
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        xmlns:ptr = "http://schemas.android.com/apk/res-auto"
+        android:id="@+id/msgsPullListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="1dp"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
+        ptr:ptrMode="both"/>
+<!--    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+    />-->
 
 </LinearLayout>

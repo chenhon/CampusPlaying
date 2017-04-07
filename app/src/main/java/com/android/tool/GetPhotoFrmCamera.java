@@ -8,6 +8,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
+
+import com.android.guide.GlobalApplication;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,8 +31,10 @@ public class GetPhotoFrmCamera {
      * 照片结果回调 onActivityResult 函数来完成相关操作
      */
     private static Uri imageUri;
+
+    private static File outputImage;
     public static void openCamera(Activity activity, int requestCode) {
-        File outputImage = new File(activity.getExternalCacheDir(),"output_image.jpg"); //创建file对象
+        outputImage = new File(activity.getExternalCacheDir(),"output_image.jpg"); //创建file对象
         try {
             if (outputImage.exists()) {
                 outputImage.delete();
@@ -36,7 +43,7 @@ public class GetPhotoFrmCamera {
         } catch(IOException e) {
             e.printStackTrace();
         }
-        if (Build.VERSION.SDK_INT >= 24) { //可以选择性的将封装过得Uri共享给外部，是特殊的内容提供其
+        if (Build.VERSION.SDK_INT >= 24) { //可以选择性的将封装过得Uri共享给外部，是特殊的内容提供器
             imageUri = FileProvider.getUriForFile(activity,//内容提供器
                     "com.example.happyplay.fileprovider", outputImage);
         } else {
@@ -50,6 +57,22 @@ public class GetPhotoFrmCamera {
     public static Bitmap getPhoto(Activity activity) {
         try {
             Bitmap bitMap = BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(imageUri));
+
+            RequestQueue mQueue = GlobalApplication.get().getRequestQueue();
+            MultipartRequest multipartRequest = new MultipartRequest(
+                    "http://develop.doris.work:8888/media", new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.d("UPLODE_TAG", " response : " + response);
+                }
+
+            });
+            // 通过MultipartEntity来设置参数
+            MultipartEntity multi = multipartRequest.getMultiPartEntity();
+            multi.addFilePart("file", outputImage);
+
+            // 将请求添加到队列中
+            mQueue.add(multipartRequest);
             return bitMap;
         } catch (FileNotFoundException e) {
             e.printStackTrace();

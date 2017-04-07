@@ -4,11 +4,14 @@ import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,16 +51,28 @@ public class MyStringRequest extends StringRequest {
         return mBodyParams;
     }
 
+/*    @Override
+    protected void deliverResponse(String response) {
+        super.deliverResponse(new String(response, HTTP.ASCII));
+    }*/
+
     /* (non-Javadoc)
-     * @see com.android.volley.toolbox.StringRequest#parseNetworkResponse(com.android.volley.NetworkResponse)
-     */
+         * @see com.android.volley.toolbox.StringRequest#parseNetworkResponse(com.android.volley.NetworkResponse)
+         */
     @Override
     protected Response<String> parseNetworkResponse(NetworkResponse response) {
-        // since we don't know which of the two underlying network vehicles
-        // will Volley use, we have to handle and store session cookies manually
+
     	Log.e("TAG", "parseNetworkResponse->response.headers:" + response.headers);
-    	//这里查看有没有access_token 参数，有的话，将token参数存储
-        return super.parseNetworkResponse(response);
+
+        try {//jsonObject要和前面的类型一致,此处都是String
+            String jsonObject = new String(
+                    new String(response.data, "UTF-8"));
+            return        Response.success(jsonObject, HttpHeaderParser.parseCacheHeaders(response));
+        } catch (UnsupportedEncodingException e) {
+            return Response.error(new ParseError(e));
+        } catch (Exception je) {
+            return Response.error(new ParseError(je));
+        }
     }
 
     /* (non-Javadoc)
