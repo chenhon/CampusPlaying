@@ -17,12 +17,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.R;
-import com.android.activity.ActivityDetailActivity;
 import com.android.activity.PublishActivity;
 import com.android.adapter.StatusesListAdapter;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.model.Statuses;
 import com.android.search.SearchActivity;
+import com.android.status.picture.DetailActivity;
 import com.android.tool.DataUtils;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
@@ -44,6 +44,9 @@ import butterknife.ButterKnife;
 
 import static com.android.R.id.statusesPullListView;
 
+/**
+ * 修改，活动传递数据，现在全部修改成值传递id
+ */
 
 
 public class HomeFragment extends Fragment {
@@ -60,7 +63,7 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.tv_emptyview)
     TextView mTvEmptyView;
 
-    private static final int LOAD_DATA_COUNT = 4;//每页加载10条数据
+    private static final int LOAD_DATA_COUNT = 10;//每页加载10条数据
     private static final int BACKWARD = 1; //加载更多 （默认）
     private static final int FORWARD = 0;   //刷新动态
     private String rootString;
@@ -101,6 +104,7 @@ public class HomeFragment extends Fragment {
     private void initListView() {
         statusesAdapter = new StatusesListAdapter(getActivity());
         statusesListView = mStatusesPullListView.getRefreshableView();//获取动态列表控件
+        statusesListView.setAdapter(statusesAdapter);//设置适配器
         statusesListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         statusesListView.setDivider(null);
     }
@@ -143,43 +147,25 @@ public class HomeFragment extends Fragment {
         statusesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  //positoin是从1开始的
-                //Toast.makeText(getContext(), "item"+position + mStatuses.size(), Toast.LENGTH_SHORT).show();
+                Intent intent = null;
                 switch (statusesAdapter.getAttachType(position-1)) {
                     case Statuses.ACTIVITY_TYPE:   //进入活动详情页
-                        Bundle bundle = new Bundle();
-                        //应该是bitmap文件过大会传输失败
-//                        bundle.putParcelable("avatar", statusesAdapter.getAvatar(position-1)); //传递用户头像
-//                        bundle.putParcelable("image", statusesAdapter.getActivityImage(position-1)); //传递活动图片
-                        GlobalApplication.setUserAvatar(statusesAdapter.getAvatar(position-1));
-                        GlobalApplication.setActivityImage(statusesAdapter.getActivityImage(position-1));
-                        int aid = 0;
-                        int creatorId = 0;
-                        try {
-                            aid = statusesAdapter.getAttachObj(position-1).getInt("id");//活动id
-                            creatorId = statusesAdapter.getAttachObj(position-1).getJSONObject("creator_obj").getInt("id");//创建者id
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        bundle.putInt("aid", aid); //活动id
-                        bundle.putInt("creatorId", creatorId); //活动id
-                        bundle.putString("jsonStr", statusesAdapter.getAttachObj(position-1).toString()); //传递活动详情的json数据
-                        Intent intent = new Intent(getActivity(), ActivityDetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtras(bundle);  //传入详细信息
-                        getActivity().startActivity(intent);
+                        intent = new Intent(getActivity(), com.android.activity.DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         break;
                     case Statuses.NOTIFICATION_TYPE: //进入通知详情页
-                        Bundle bundle1 = new Bundle();
-                        bundle1.putString("jsonStr", statusesAdapter.getAttachObj(position-1).toString()); //传递通知详情的json数据
-                        Intent intent1 = new Intent(getActivity(), NotificationDetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent1.putExtras(bundle1);  //传入详细信息
-                        getActivity().startActivity(intent1);
+                        intent = new Intent(getActivity(), com.android.remind.notification.DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         break;
-                    case Statuses.PHOTO_TYPE:
-
+                    case Statuses.PHOTO_TYPE:  //进入照片详情页
+                        intent = new Intent(getActivity(), DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         break;
                     default: break;
                 }
-
+                Bundle bundle = new Bundle();
+                System.out.println("p11-" + statusesAdapter.getStatusId(position-1) + "-"+ statusesAdapter.getCreatorId(position-1));
+                bundle.putInt("aid", statusesAdapter.getStatusId(position-1));       //动态id
+                bundle.putInt("creatorId", statusesAdapter.getCreatorId(position-1)); //发布活动者id
+                intent.putExtras(bundle);  //传入详细信息
+                getActivity().startActivity(intent);
                 }
 
             }
@@ -190,7 +176,8 @@ public class HomeFragment extends Fragment {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-                new GetDataTask().execute();
+                refreshData();
+               // new GetDataTask().execute();
             }
 
             //上拉加载更多
@@ -224,7 +211,7 @@ public class HomeFragment extends Fragment {
                     Log.d("getTIMELINE:TAG", response);
                     parseStatusJson(response); //将数据填入到List中去
                     mStatusesPullListView.onRefreshComplete(); //刷新结束
-                    mIvRefresh.setClickable(true);//使能点击刷新
+                   // mIvRefresh.setClickable(true);//使能点击刷新
                 }},
                     new Response.ErrorListener() {
                         @Override
@@ -257,20 +244,21 @@ public class HomeFragment extends Fragment {
             if(jsonArr.length() > 0) {
                 isLoadData = true;
             }
-            for (int i = jsonArr.length()-1; i >= 0 ; i--) {//最新的动态要放在最前面
+            for (int i = 0; i < jsonArr.length() ; i++) {//最新的动态要放在最前面
                 JSONObject jsonObject1 = jsonArr.getJSONObject(i);
-                if(jsonArr.length()-1 == i) {//第一条动态的时间戳
+                if(jsonArr.length()-1 == i) {//小时间戳
                     frontStamp = jsonObject1.getJSONObject("attach_obj").getLong("created_at");
                 }
-                if(0 == i) {  //最近一条动态的时间戳
+                if(0 == i) {  //大时间戳
                     endStamp = jsonObject1.getJSONObject("attach_obj").getLong("created_at");
                 }
 
                 //适配器中添加数据项
-                statusesAdapter.addHeaderStausesListItem(jsonObject1.getInt("attach_type")
+                statusesAdapter.addStatusListItem(jsonObject1.getInt("attach_type")
                         , jsonObject1.getJSONObject("attach_obj"));
             }
-            statusesListView.setAdapter(statusesAdapter);//设置适配器
+            statusesAdapter.notifyDataSetChanged();//适配器更新数据
+         //   statusesListView.setAdapter(statusesAdapter);//设置适配器
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("getTIMELINE:TAG", e.toString());
@@ -345,7 +333,7 @@ public class HomeFragment extends Fragment {
 
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
                     .with("count",String.valueOf(LOAD_DATA_COUNT)) //每页条数
-                    .with("timestamp",String.valueOf(frontStamp)) //时间戳游标
+                    .with("cursor",String.valueOf(frontStamp)) //时间戳游标
                     .with("direction",String.valueOf(BACKWARD)); //加载方向，为加载更多
             VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
                     .with("token", GlobalApplication.getToken())
@@ -359,13 +347,12 @@ public class HomeFragment extends Fragment {
                                 JSONObject jsonObject = new JSONObject(response);
                                 JSONArray jsonArr = jsonObject.getJSONArray("statues");
 
-                                for (int i = 0; i < jsonArr.length(); i++) {//新的动态要放在最前面
+                                for (int i = 0; i < jsonArr.length(); i++) {
                                     JSONObject jsonObject1 = jsonArr.getJSONObject(i);
                                     if(jsonArr.length()-1 == i) {  //最前面一条动态的时间戳
                                         frontStamp = jsonObject1.getJSONObject("attach_obj").getLong("created_at");
                                     }
 
-                                    //数据添加到李斯特尾部
                                     statusesAdapter.addStatusListItem(jsonObject1.getInt("attach_type")
                                             , jsonObject1.getJSONObject("attach_obj"));
                                 }
@@ -427,6 +414,17 @@ public class HomeFragment extends Fragment {
             }
             super.onPostExecute(result);
         }
+    }
+
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        statusesAdapter.clearListData();//清楚数据
+        isLoadData = false;//记录是否已经加载了数据
+        frontStamp = 0;//最前面的时间戳  小
+        endStamp = 0; //最近加载动态的一条时间戳 大
+        getListData();
     }
 
 }

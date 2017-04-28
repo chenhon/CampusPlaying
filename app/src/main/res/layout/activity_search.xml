@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical" >
     <LinearLayout
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -28,6 +30,10 @@
         <FrameLayout
             android:layout_weight="1"
             android:layout_width="0dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="8dp"
+            android:background="@drawable/search_edittext_shape"
             android:layout_height="wrap_content">
 
             <EditText
@@ -36,6 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
+                android:background="@null"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:hint="请输入关键字"/>
@@ -53,8 +60,6 @@
         android:id="@+id/do_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
         android:padding="5dp"
         android:layout_margin="10dp"
         android:layout_gravity="center_vertical"
@@ -161,8 +166,6 @@
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:smoothScrollbar="true"
-        android:focusableInTouchMode="true"
-        android:focusable="true"
-        ptr:ptrMode="both"/>
+        ptr:ptrMode="pullFromEnd"/>
 
 </LinearLayout>

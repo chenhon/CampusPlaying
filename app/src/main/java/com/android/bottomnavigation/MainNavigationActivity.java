@@ -1,5 +1,6 @@
 package com.android.bottomnavigation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.guide.BaseActivity;
 import com.android.person.PersonFragment;
@@ -17,6 +19,8 @@ import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 
 public class MainNavigationActivity extends BaseActivity implements BottomNavigationBar.OnTabSelectedListener{
+    public static final int REFRESH_PERSON_INFO = 0;    //改变个人主页信息
+    public static final int REFRESH_REMIND_INFO = 1;    //改变个人消息
     private static final int INTERVAL_TIME = 4000;
     private long exitTime;
     private FrameLayout mContentFrame;
@@ -77,7 +81,13 @@ public class MainNavigationActivity extends BaseActivity implements BottomNaviga
                 Fragment fragment = mFragments[position];
                 if (!fragment.isAdded()) { // 没有加载过则加载
                     ft.add(R.id.content_frame, fragment).commit(); // 隐藏当前的fragment，add下一个到Activity中
+
                 } else { //否则直接显示
+                    if(fragment instanceof PersonFragment) {  //界面切换也要刷新个人主页
+                        ((PersonFragment) fragment).refreshPersonInfo(GlobalApplication.getMySelf().getId());
+                    } else if(fragment instanceof RemindFragment) {   //刷新个人消息列表
+                        ((RemindFragment) fragment).refreshPrivateListData();
+                    }
                     ft.show(fragment).commit(); // 隐藏当前的fragment，显示下一个
                 }
                 //ft.replace(R.id.lay_frame, fragment);
@@ -117,6 +127,26 @@ public class MainNavigationActivity extends BaseActivity implements BottomNaviga
            // clearSharedPreferences();
            // ((GlobalApplication)getApplication()).setBitmap(null);
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case REFRESH_PERSON_INFO:        //刷新个人主页
+                if(resultCode == RESULT_OK) {
+                    if(mFragments[3].isAdded()) {
+                        ((PersonFragment) mFragments[3]).refreshPersonInfo(GlobalApplication.getMySelf().getId());
+                    }
+                }
+                break;
+            case REFRESH_REMIND_INFO:        //刷新个人消息列表
+                if(resultCode == RESULT_OK) {
+                    ((RemindFragment) mFragments[2]).refreshPrivateListData();
+                }
+                break;
+            default:
+                break;
         }
     }
 

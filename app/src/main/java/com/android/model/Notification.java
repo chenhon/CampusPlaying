@@ -5,77 +5,77 @@ package com.android.model;
  */
 
 public class Notification {
-    /**
-     * id : 00010
-     * creator_id : 00010
-     * activity_id  : 00010
-     * title : 通知标题
-     * content : 通知内容
-     * comment_count : 10
-     * created_at  : 1122121212
-     */
 
-    private String id;
-    private String creator_id;
-    private String activity_id;
-    private String title;
-    private String content;
-    private int comment_count;
-    private int created_at;
+    private int id;        //通知id
+    private int creatorId; //发布者id
+    private String name;   //发布者名称
+    private int activityId;//依附的活动id
+    private String title;  //通知标题
+    private int avatarId;  //发布者头像id
+    private long createdTime;//发布时间
+    private String content;  //活动内容
 
-    public String getId() {
-        return id;
+    public void setActivityId(int activityId) {
+        this.activityId = activityId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public int getActivityId() {
+        return activityId;
     }
 
-    public String getCreator_id() {
-        return creator_id;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setCreator_id(String creator_id) {
-        this.creator_id = creator_id;
+    public String getName() {
+        return name;
     }
 
-    public String getActivity_id() {
-        return activity_id;
+    public void setAvatarId(int avatarId) {
+        this.avatarId = avatarId;
     }
 
-    public void setActivity_id(String activity_id) {
-        this.activity_id = activity_id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
+    public int getAvatarId() {
+        return avatarId;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
 
-    public int getComment_count() {
-        return comment_count;
+    public String getContent() {
+        return content;
     }
 
-    public void setComment_count(int comment_count) {
-        this.comment_count = comment_count;
+    public void setCreatedTime(long createdTime) {
+        this.createdTime = createdTime;
     }
 
-    public int getCreated_at() {
-        return created_at;
+    public long getCreatedTime() {
+        return createdTime;
     }
 
-    public void setCreated_at(int created_at) {
-        this.created_at = created_at;
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public int getCreatorId() {
+        return creatorId;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

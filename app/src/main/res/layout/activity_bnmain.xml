@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+    <Button
+        android:id="@+id/startNaviBtn"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="导航前往" />
+    <Button
+        android:id="@+id/wgsNaviBtn"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="国际经纬度坐标" />
+
+    <Button
+        android:id="@+id/gcjNaviBtn"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="国测局坐标" />
+
+    <Button
+        android:id="@+id/bdmcNaviBtn"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="百度墨卡托坐标" />
+
+    <Button
+        android:id="@+id/mDb06llNaviBtn"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="百度经纬度坐标" />
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmap_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"/>
+
+</RelativeLayout>

@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.bottomnavigation.MainNavigationActivity;
 import com.android.tool.CyptoUtils;
@@ -98,6 +99,20 @@ public class MainActivity extends BaseActivity {
             statusSave.setChecked(false);
             statusSave.setTextColor(getResources().getColor(R.color.login_unsaved));
         }
+
+        //免登录用
+        String token = GlobalApplication.getToken();
+        int uid = GlobalApplication.getUserId();
+        if((uid != 0)&& (!"".equals(token))) {
+            GlobalApplication.getMySelf().setId(uid);//保存用户ID
+            getUserInfo(uid);
+            mProgressHUD = ProgressHUD.show(MainActivity.this, "登录中...", true, true, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mProgressHUD.dismiss();
+                }
+            });
+        }
     }
 
     /**
@@ -151,17 +166,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    /**
-     * 功能描述： onTouchEvent事件中，点击android系统的软键盘外的其他地方，可隐藏软键盘，以免遮挡住输入框
-     * @param event
-     *            当前的触控事件
-     * @return boolean类型的标记位。当用户点击后才会隐藏软键盘。
-     */
-    @Override
-    public boolean onTouchEvent(android.view.MotionEvent event) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        return imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
-    }
 
     /**
      * 执行登录
@@ -194,6 +198,7 @@ public class MainActivity extends BaseActivity {
                     }
                     try {
                         Log.e("MainActivity:login:TAG", response);
+                        GlobalApplication.setPassword(password.getText().toString()); //密码保存在本地
                         handleResult(response);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -214,7 +219,9 @@ public class MainActivity extends BaseActivity {
             JSONObject jsonObj = new JSONObject(response);
             //Toast.makeText(MainActivity.this, "user_id"+jsonObj.getInt("user_id"), Toast.LENGTH_SHORT).show();
             GlobalApplication.setToken(jsonObj.getString("access_token"));//保存token
+            GlobalApplication.setUserId(jsonObj.getInt("user_id"));
             GlobalApplication.getMySelf().setId(jsonObj.getInt("user_id"));//保存用户ID
+            //存储在本地则可以做免登录处理
             getUserInfo(jsonObj.getInt("user_id"));
 
         } catch (JSONException e) {
@@ -246,7 +253,7 @@ public class MainActivity extends BaseActivity {
                         GlobalApplication.getMySelf().setGender(jsObject.getInt("gender"));
                         GlobalApplication.getMySelf().setFollowersCount(jsObject.getInt("followers_count"));
                         GlobalApplication.getMySelf().setFansCount(jsObject.getInt("fans_count"));
-                        GlobalApplication.getMySelf().setAvatar(jsObject.getInt("activities_count"));
+                        GlobalApplication.getMySelf().setActivitysCount(jsObject.getInt("activities_count"));
                        // GlobalApplication.setMyAvatar(mUploadAvatar);
                         getAvatar(jsObject.getInt("avatar"));
                     } catch (Exception e) {
@@ -291,5 +298,17 @@ public class MainActivity extends BaseActivity {
             }
         });
         mQueue.add(avatarImageRequest);
+    }
+
+    /**
+     * 功能描述： onTouchEvent事件中，点击android系统的软键盘外的其他地方，可隐藏软键盘，以免遮挡住输入框
+     * @param event
+     *            当前的触控事件
+     * @return boolean类型的标记位。当用户点击后才会隐藏软键盘。
+     */
+    @Override
+    public boolean onTouchEvent(android.view.MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        return imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
     }
 }

@@ -6,42 +6,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--标题栏-->
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:orientation="horizontal" >
-        <ImageView
-            android:id="@+id/back_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/global_back"/>
+        android:background="#fff">
+        <!--标题栏自定义布局-->
         <TextView
-            android:id="@+id/page_title"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="48dp"
+            android:id="@+id/title_name"
             android:gravity="center"
-            android:text="活动详情"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:textColor="#444444"
-            android:textSize="17sp" />
-        <ImageView
-            android:id="@+id/share_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/global_share"/>
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:text="活动详情"
+            android:textColor="#444"
+            android:textSize="17sp"/>
 
-    <View
+    </android.support.v7.widget.Toolbar>
+
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/swipyrefreshlayout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/statuses_item_interval"
-        android:background="#D7D7D7"/>
-
+        android:layout_below="@+id/llSearchFrame"
+        android:layout_height="wrap_content"
+        app:srl_direction="bottom">
     <!--具体内容放在滑动条里面-->
     <ScrollView
         android:layout_width="match_parent"
@@ -50,19 +38,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="#D7D7D7"/>
             <!--活动头图-->
-            <com.android.tool.PictureView
+            <ImageView
+                android:id="@+id/activity_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"/>
+   <!--         <com.android.tool.PictureView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="30dp"
                 xmlns:pv = "http://schemas.android.com/apk/res-auto"
                 pv:picture_type="home_type">
-                <ImageView
-                    android:id="@+id/activity_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/global_campus_playing_logo"/>
-            </com.android.tool.PictureView>
+
+            </com.android.tool.PictureView>-->
             <TextView
                 android:id="@+id/created_time"
                 android:layout_width="match_parent"
@@ -165,17 +159,16 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             android:background="#fff">
-
-                <Button
-                    android:id="@+id/join_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:background="#f8cc4c4c"
-                    android:gravity="center"
-                    android:textSize="15sp"
-                    android:text="要参加"/>
+            <Button
+                android:id="@+id/join_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:background="#f8cc4c4c"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:text="参  与"/>
         </LinearLayout>
         <View
             android:layout_width="match_parent"
@@ -224,6 +217,7 @@
             android:focusable="true"
             android:background="@drawable/bg_edittext_selector"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:paddingBottom="7dp"
             android:paddingTop="7dp">
             <ImageView
@@ -231,18 +225,24 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/detail_location"/>
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginLeft="4dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
                 android:text="查看地图"/>
             <TextView
                 android:id="@+id/activity_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:ellipsize="end"
+                android:maxLines="1"/>
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="洪山区"/>
+                android:src="@drawable/detail_expand"/>
         </LinearLayout>
 
         <!--费用-->
@@ -268,12 +268,11 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
-                android:text="活动费用"/>
+                android:text="人均"/>
             <TextView
                 android:id="@+id/activity_fee"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="约20元"/>
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <!--&lt;!&ndash;人数&ndash;&gt;
@@ -335,8 +334,11 @@
             <TextView
                 android:id="@+id/publisher_name"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="洪豆"/>
+                android:src="@drawable/detail_expand"/>
         </LinearLayout>
 
         <!--通知-->
@@ -368,13 +370,17 @@
             <TextView
                 android:id="@+id/notification_count"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="有3条通知"/>
+                android:src="@drawable/detail_expand"/>
         </LinearLayout>
 
         <!--讨论-->
         <LinearLayout
             android:id="@+id/ll_to_comment"
+            android:visibility="gone"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_width="match_parent"
@@ -434,6 +440,33 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/detail_expand"/>
         </LinearLayout>
+            <!--活动类型-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:background="@drawable/bg_edittext_selector"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/detail_type"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="4dp"
+                    android:textColor="#444444"
+                    android:textSize="20sp"
+                    android:text="活动类型"/>
+
+                <TextView
+                    android:id="@+id/activity_type"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
             <!--活动标签-->
         <LinearLayout
             android:layout_width="match_parent"
@@ -544,6 +577,7 @@
                     android:text="评论(0)"/>
                 <ImageView
                     android:id="@+id/do_comment"
+                    android:paddingLeft="15dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/recommend"/>
@@ -557,5 +591,6 @@
             </FrameLayout>
         </LinearLayout>
     </ScrollView>
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
 </LinearLayout>

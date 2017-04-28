@@ -125,8 +125,8 @@ public void onResponse(String response) {
 
         });
 
-        // 添加header
-        multipartRequest.addHeader("header-name", "value");
+        // 添加header multipartRequest.addHeader("header-name", "value");
+
 
         // 通过MultipartEntity来设置参数
         MultipartEntity multi = multipartRequest.getMultiPartEntity();

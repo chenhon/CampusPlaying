@@ -1,7 +1,6 @@
 package com.android.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,13 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.model.Comment;
+import com.android.person.PersonOnClickListenerImpl;
+import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.DataUtils;
-import com.android.tool.MyImageRequest;
 import com.android.tool.MyStringRequest;
 import com.android.tool.PopCommentSelectMenu;
 import com.android.tool.VolleyRequestParams;
@@ -28,9 +27,7 @@ import com.android.volley.VolleyError;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -48,7 +45,6 @@ import static com.android.R.id.do_recommend;
 public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.ViewHolder> {
     private List<Comment> mComments = new ArrayList();
     private Activity mActivity;
-    private Map<Integer,Bitmap> mAvatarBitmaps;//头像，需要另外加载
     private RequestQueue mQueue;
     private MyItemHandle mMyItemHandle; //对应长按操作
     private int mAttachCreatorId;//发布活动/通知/照片者的id
@@ -75,7 +71,6 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         mAttachCreatorId = attachCreatorId;
         mActivity = activity;
         mComments = list;
-        mAvatarBitmaps = new HashMap<>();
         mQueue = GlobalApplication.get().getRequestQueue();
     }
 
@@ -86,15 +81,20 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         viewHolder.doRecommend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mActivity,"点了评论图像进行评论", Toast.LENGTH_SHORT).show();
+                mMyItemHandle.handleReply(viewHolder.getAdapterPosition());
+                //Toast.makeText(mActivity,"点了评论图像进行评论", Toast.LENGTH_SHORT).show();
             }
         });
-        viewHolder.userAvatar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mActivity,"跳转到用户详情界面", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        viewHolder.userAvatar.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {    //注意这里的处理
+                        new PersonOnClickListenerImpl(mActivity, mComments.get(viewHolder.getAdapterPosition()).getCreatorId()).onClick(v);
+                    }
+                }
+        );
+
         view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {    //长按弹出选项
@@ -125,13 +125,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
                 return true;
             }
         });
-        view.setOnClickListener(new View.OnClickListener() {
+/*        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int position = viewHolder.getAdapterPosition();
                 Toast.makeText(mActivity,"单击进行评论  "+position, Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
         return viewHolder;
     }
@@ -174,40 +174,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         }
         //图像请求
         //获取用户头像
-        if(mAvatarBitmaps.containsKey(mComments.get(position).getAvatarId())) {
-            holder.userAvatar.setImageBitmap(mAvatarBitmaps.get(mComments.get(position).getAvatarId()));
-        } else {
-            MyImageRequest avatarImageRequest = new MyImageRequest(
-                    mActivity.getResources().getString(R.string.ROOT) + "media/" + comment.getAvatarId()
-                    , new Response.Listener<Bitmap>() {
-                @Override
-                public void onResponse(Bitmap response) {
-                    mAvatarBitmaps.put(mComments.get(position).getAvatarId(), response);
-                    holder.userAvatar.setImageBitmap(response);
-                }
-            }, 0, 0, Bitmap.Config.RGB_565
-                    , new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    holder.userAvatar.setImageResource(R.drawable.campus_playing_app_icon);
-                }
-            });
-            mQueue.add(avatarImageRequest);
-        }
-/*        // holder.userAvatar.setImageResource();  //图标设置
-
-        //图片的设置要根据图片的ID在请求一次来获取
-       holder.userName.setText(msg.getName());  //名字设置
-        holder.msgContent.setText(msg.getRecentContent());  //消息内容设置
-        holder.msgTime.setText(String.valueOf(msg.getRecentTime())); //消息时间设置
-
-        if(msg.getNoReadCount() > 0) {     //未读消息数设置
-            holder.noReadNum.setText(String.valueOf(msg.getNoReadCount()));
-            holder.noReadNum.setVisibility(View.VISIBLE);
-        } else {            //没有未读消息则不显示红点
-            holder.noReadNum.setVisibility(View.GONE);
-        }*/
-
+        BitmapLoaderUtil.getInstance().getImage(holder.userAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, mComments.get(position).getAvatarId());//发布者头像
     }
 
     @Override

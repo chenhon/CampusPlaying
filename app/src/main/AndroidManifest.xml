@@ -2,6 +2,20 @@
 <manifest package="com.android"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- shareSDK 分享相关权限 -->
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- 蓝牙分享所需的权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <!-- 百度地图相关权限 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -20,14 +34,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- 内容提供其共享图片资源 -->
     <provider android:name="android.support.v4.content.FileProvider"
-        android:authorities="com.example.happyplay.fileprovider"
+        android:authorities="com.android"
         android:exported="false"
         android:grantUriPermissions="true">
         <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
             android:resource="@xml/file_paths" />
     </provider>
 
-    <application android:name=".guide.GlobalApplication"
+    <application android:name=".GlobalApplication"
         android:allowBackup="true"
         android:icon="@drawable/campus_playing_app_icon"
         android:label="@string/app_name"
@@ -40,7 +54,7 @@
 
         <service android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote" />
 
         <activity android:name=".guide.SplashActivity"
             android:label="@string/app_name"
@@ -52,6 +66,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.mob.tools.MobUIShell"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+
+            <!-- QQ和QQ空间分享 QQ登录的回调必须要配置的 -->
+            <intent-filter>
+                <data android:scheme="tencent100371282" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- 新浪微博客户端分享回调必须配置 -->
+            <intent-filter>
+                <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- 微信分享回调 -->
+        <activity android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity android:name=".guide.BaseActivity" />
         <activity android:name=".guide.MainActivity"
             android:screenOrientation="portrait"
@@ -59,13 +102,15 @@
         <activity android:name=".bottomnavigation.MainNavigationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".activity.ActivityDetailActivity"
+        <activity android:name=".activity.DetailActivity"
+            android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".status.NotificationDetailActivity"
+        <activity android:name=".remind.notification.DetailActivity"
+            android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".status.PictureDetailActivity"
+        <activity android:name=".status.picture.DetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".activity.PublishActivity"
@@ -80,16 +125,16 @@
         <activity android:name=".person.CommunicateActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".status.NotificationEditActivity"
+        <activity android:name=".remind.notification.PublishActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".person.FollowActivity"
+        <activity android:name=".person.PersonListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".person.ActivityListActivity"
+        <activity android:name=".activity.ListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".person.RecentStatusActivity"
+        <activity android:name=".status.RecentStatusActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".person.AlbumActivity"
@@ -102,6 +147,57 @@
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".lbs.SetLocationActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".remind.notification.ListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".status.picture.ListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".status.picture.PublishActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".person.PersonActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".lbs.BNMainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".lbs.BNDemoGuideActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- 服务配置 -->
+        <service android:name=".person.PollingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.ryantang.service.PollingService" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".person.edit.PersonEdit"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".person.edit.TextEdit"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".person.edit.PasswordEdit"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".activity.EditActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".remind.notification.EditActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+        <activity android:name=".remind.CommentListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
     </application>

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.tool.MyImageRequest;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;

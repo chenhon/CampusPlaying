@@ -10,12 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
-import com.android.tool.MyImageRequest;
+import com.android.GlobalApplication;
+import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.PictureView;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 
 import org.json.JSONObject;
 
@@ -131,8 +129,10 @@ public class AlbumListAdapter extends BaseAdapter {
             for(int i = 0; i < pictureJsons.size(); i++) {
                 final JSONObject pictureJson = pictureJsons.get(i);
                 final ImageView imageView = new ImageView(mActivity);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                BitmapLoaderUtil.getInstance().getImage(imageView, BitmapLoaderUtil.TYPE_MEDIAN, pictureJson.getInt("media_id"));
                 viewHolder.mPictureContainer.addView(imageView, i);
-                if(mAlbumBitmaps.containsKey(pictureJson.getInt("id"))) {//图片已经加载过了
+                /*if(mAlbumBitmaps.containsKey(pictureJson.getInt("id"))) {//图片已经加载过了
                     imageView.setImageBitmap(mAlbumBitmaps.get(pictureJson.getInt("id")));
                 } else {
                     MyImageRequest avatarImageRequest = new MyImageRequest(
@@ -157,7 +157,7 @@ public class AlbumListAdapter extends BaseAdapter {
                         }
                     });
                     mQueue.add(avatarImageRequest);
-                }
+                }*/
             }
         } catch (Exception e) {
             e.printStackTrace();

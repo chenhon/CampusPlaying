@@ -11,5 +11,5 @@
     <!--边线宽度和颜色-->
     <stroke
         android:width="1dip"
-        android:color="#BDC7D8" />
+        android:color="#D7D7D7" />
 </shape>

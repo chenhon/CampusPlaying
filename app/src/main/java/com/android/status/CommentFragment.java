@@ -14,14 +14,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.R;
-import com.android.activity.ActivityDetailActivity;
 import com.android.adapter.CommentListAdapter;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.model.Comment;
+import com.android.status.picture.DetailActivity;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.ProgressHUD;
 import com.android.tool.ReplyDialog;
+import com.android.tool.ReportUtil;
 import com.android.tool.VolleyRequestParams;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
+ * 评论列表
  */
 public class CommentFragment extends Fragment {
 
@@ -60,6 +61,9 @@ public class CommentFragment extends Fragment {
 
     private String root;
 
+    public int getLoadedCount() {
+        return mComments.size();
+    }
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -102,7 +106,7 @@ public class CommentFragment extends Fragment {
             @Override
             public void handleReply(final int position) {
                 final ReplyDialog replyDialog = new ReplyDialog(getActivity());
-                replyDialog.setHintText("回复某人的评论...")
+                replyDialog.setHintText("回复评论...")
                         .setOnBtnCommitClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {   //回复键的回调函数
@@ -149,7 +153,11 @@ public class CommentFragment extends Fragment {
                                             mCommentAdapter.notifyDataSetChanged();
                                             commentsTotal--;
                                             if(mCommentType == Comment.ACTIVITY_TYPE) {
-                                                ((ActivityDetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                                ((com.android.activity.DetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                            }else if(mCommentType == Comment.NOTIFICATION_TYPE) {
+                                                ((com.android.remind.notification.DetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                            } else if(mCommentType == Comment.PHOTO_TYPE) {
+                                                ((DetailActivity) getActivity()).setCommentCount(commentsTotal);
                                             }
                                             Toast.makeText(getActivity(), "已删除".toString(), Toast.LENGTH_SHORT).show();
                                             mProgressHUD.dismiss();
@@ -182,8 +190,8 @@ public class CommentFragment extends Fragment {
             }
 
             @Override
-            public void handleReport(int position) {
-                Toast.makeText(getActivity(),"举报操作  ", Toast.LENGTH_SHORT).show();
+            public void handleReport(final int position) {
+                new ReportUtil(getActivity(), ReportUtil.TYPE_COMMENT, mComments.get(position).getId()).doReport();
             }
         });   //适配器初始化
         mRvComment.setAdapter(mCommentAdapter);
@@ -232,7 +240,7 @@ public class CommentFragment extends Fragment {
 
                                 JSONObject jsonObject1 = new JSONObject(response);
                                 try {
-                                        commentsTotal = jsonObject1.getInt("total");//总数
+                                        commentsTotal++;//总数
                                         Comment comment = new Comment();
                                         comment.setId(jsonObject1.getInt("id"));//评论id
                                         comment.setCreatorId(jsonObject1.getInt("creator"));
@@ -242,16 +250,19 @@ public class CommentFragment extends Fragment {
                                         comment.setContent(jsonObject1.getString("content"));
                                         comment.setParentId(jsonObject1.getInt("parent"));
                                         mComments.add(0,comment);
+                                        mCommentAdapter.notifyDataSetChanged();
                                         //适配器中添加数据项
                                         if(!isLoadData) {   //还没有加载数据
                                             isLoadData = true;
                                             loadedCount = 1;//已加载数
                                         }
 
-                                        mCommentAdapter.notifyDataSetChanged();
-
                                         if(mCommentType == Comment.ACTIVITY_TYPE) {
-                                            ((ActivityDetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                            ((com.android.activity.DetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                        } else if(mCommentType == Comment.NOTIFICATION_TYPE) {
+                                            ((com.android.remind.notification.DetailActivity) getActivity()).setCommentCount(commentsTotal);
+                                        } else if(mCommentType == Comment.PHOTO_TYPE) {
+                                            ((DetailActivity) getActivity()).setCommentCount(commentsTotal);
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -284,15 +295,17 @@ public class CommentFragment extends Fragment {
         }
     }
     public void addData(JSONObject jsObject) {
+        System.out.println("comment(Json)"+jsObject.toString());
         try {
             commentsTotal = jsObject.getInt("total");//总数
             if(commentsTotal <= mComments.size() ) {
-                Toast.makeText(getActivity(), "评论已加载完！", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), "评论已加载完！", Toast.LENGTH_SHORT).show();
                 return;
             }
             JSONArray jsonArray = jsObject.getJSONArray("comments");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                System.out.println("comments:"+jsonObject1.toString());
                 Comment comment = new Comment();
                 comment.setId(jsonObject1.getInt("id"));//评论id
                 comment.setCreatorId(jsonObject1.getInt("creator"));

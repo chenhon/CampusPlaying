@@ -35,6 +35,38 @@ public class Comment {
     private long createdTime;
     private String content;
     private int parentId;
+    private int attachType;//评论对应的类型
+    private int attachId;//评论对应的类型的对象id
+    private int attachImage;//依附的照片
+    private String attachContent;//依附内容（活动和照片是title， 图片是description ）
+    //加入依附的活动（或照片）的发布者信息（昵称和id）
+
+    private int attachCreatorId;
+    private String attachCreatorName;
+
+    public void setAttachContent(String attachContent) {
+        this.attachContent = attachContent;
+    }
+
+    public String getAttachContent() {
+        return attachContent;
+    }
+
+    public void setAttachCreatorId(int attachCreatorId) {
+        this.attachCreatorId = attachCreatorId;
+    }
+
+    public int getAttachCreatorId() {
+        return attachCreatorId;
+    }
+
+    public void setAttachCreatorName(String attachCreatorName) {
+        this.attachCreatorName = attachCreatorName;
+    }
+
+    public String getAttachCreatorName() {
+        return attachCreatorName;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -68,6 +100,22 @@ public class Comment {
         this.parentId = parentId;
     }
 
+    public void setAttachType(int attachType) {
+        this.attachType = attachType;
+    }
+
+    public void setAttachId(int attachId) {
+        this.attachId = attachId;
+    }
+
+    public void setAttachImage(int attachImage) {
+        this.attachImage = attachImage;
+    }
+
+    public int getAttachImage() {
+        return attachImage;
+    }
+
     public int getId() {
         return id;
     }
@@ -98,5 +146,13 @@ public class Comment {
 
     public int getParentId() {
         return parentId;
+    }
+
+    public int getAttachType() {
+        return attachType;
+    }
+
+    public int getAttachId() {
+        return attachId;
     }
 }

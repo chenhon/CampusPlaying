@@ -1,27 +1,18 @@
 package com.android.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
+import com.android.model.PrivateMsg;
+import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.DataUtils;
-import com.android.tool.MyImageRequest;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -32,32 +23,32 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class PrivateListAdapter extends BaseAdapter {
-    private List<JSONObject> mMsgJsons;//消息头详细信息，对应的Json数据
-    private Map<Integer,Bitmap> mAvatarBitmaps;//头像，需要另外加载，key为userid
+    private List<PrivateMsg> mPrivates;
     private Activity mActivity;
-    private RequestQueue mQueue;
 
     public PrivateListAdapter(Activity activity) {
         this.mActivity = activity;
-        this.mMsgJsons = new ArrayList<>();
-        this.mAvatarBitmaps = new HashMap<>();
-        mQueue = GlobalApplication.get().getRequestQueue();
+        this.mPrivates = new ArrayList<>();
     }
 
-    public Bitmap getAvatar(int position) { //应该是userid
-        return mAvatarBitmaps.get(position);
+    public int getTargetId(int position) {
+        return mPrivates.get(position).getTargetId();
     }
-    public JSONObject getJsonObj(int position) {
-        return mMsgJsons.get(position);
+    public String getTargetName(int position) {
+        return mPrivates.get(position).getTargetName();
     }
+    public int getTargetAvatarId(int position) {
+        return mPrivates.get(position).getAvatarId();
+    }
+
     @Override
     public int getCount() {
-        return mMsgJsons.size();
+        return mPrivates.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mMsgJsons.get(position);
+        return mPrivates.get(position);
     }
 
     @Override
@@ -76,38 +67,20 @@ public class PrivateListAdapter extends BaseAdapter {
             view = convertView;
             viewHolder = (ViewHolder)view.getTag();
         }
-        try {
-            //发布人还获取不到
-            viewHolder.msgContent.setText(mMsgJsons.get(position).getJSONObject("recent").getString("content"));//私信内容
-            viewHolder.msgTime.setText(DataUtils.stampToDate(DataUtils.DATA_TYPE2,
-                    mMsgJsons.get(position).getJSONObject("recent").getLong("created_at"))); //私信时间
-            viewHolder.noReadNum.setText(mMsgJsons.get(position).getString("private_count"));//未读数
 
-            if(mAvatarBitmaps.get(position)!=null) {
-                viewHolder.userAvatar.setImageBitmap(mAvatarBitmaps.get(position));
-            } else {
-                MyImageRequest avatarImageRequest = new MyImageRequest(
-                        mActivity.getResources().getString(R.string.ROOT) + "media/" + mMsgJsons.get(position).getInt("avatar")
-                        , new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        mAvatarBitmaps.put(position, response);
-                        viewHolder.userAvatar.setImageBitmap(response);
-                    }
-                }, 0, 0, Bitmap.Config.RGB_565
-                        , new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        viewHolder.userAvatar.setImageResource(R.drawable.campus_playing_app_icon);
-                    }
-                });
-                mQueue.add(avatarImageRequest);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("getTIMELINE:TAG", e.toString());
+        viewHolder.userName.setText(mPrivates.get(position).getTargetName());   //对方昵称
+        viewHolder.msgContent.setText(mPrivates.get(position).getRecentContent());//最近一条私信内容
+        viewHolder.msgTime.setText(DataUtils.stampToDate(DataUtils.DATA_TYPE2,
+                mPrivates.get(position).getRecentTime()));  //最近一条私信的时间
+        int noReadCnt = mPrivates.get(position).getNoReadCount();  //未读消息条数
+        if(0 == noReadCnt) {
+            viewHolder.noReadNum.setVisibility(View.GONE);
+        } else {
+            viewHolder.noReadNum.setVisibility(View.VISIBLE);
+            viewHolder.noReadNum.setText(String.valueOf(noReadCnt));//有未读消息
         }
+        BitmapLoaderUtil.getInstance().getImage(viewHolder.userAvatar,BitmapLoaderUtil.TYPE_ORIGINAL,mPrivates.get(position).getAvatarId());
+
         return view;
     }
 
@@ -127,23 +100,14 @@ public class PrivateListAdapter extends BaseAdapter {
         }
 
     }
-    /**
-     * 添加数据列表项
-     */
-    public void addPrivateListItem(JSONObject json) {
-        mMsgJsons.add(json);
 
+    public void clearPrivateListItem() {
+        mPrivates.clear();
     }
     /**
      * 添加数据列表项
      */
-    public void addPrivateListItem(int position, JSONObject json) {
-        mMsgJsons.add(position,json);
-    }
-    /**
-     * 添加数据列表项开头位置
-     */
-    public void addHeaderPrivateListItem(JSONObject json) {
-        mMsgJsons.add(0, json);
+    public void addPrivateListItem(PrivateMsg privateMsg) {
+        mPrivates.add(privateMsg);
     }
 }

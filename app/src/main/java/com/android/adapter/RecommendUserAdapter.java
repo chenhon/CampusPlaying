@@ -1,8 +1,10 @@
 package com.android.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
+import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,62 +12,54 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
-import com.android.tool.MyImageRequest;
-import com.android.volley.RequestQueue;
+import com.android.GlobalApplication;
+import com.android.model.User;
+import com.android.person.PersonOnClickListenerImpl;
+import com.android.tool.BitmapLoaderUtil;
+import com.android.tool.MyStringRequest;
+import com.android.tool.NetworkConnectStatus;
+import com.android.tool.ProgressHUD;
+import com.android.tool.VolleyRequestParams;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Administrator on 2016/12/28 0028.
  */
 
 public class RecommendUserAdapter extends RecyclerView.Adapter<RecommendUserAdapter.ViewHolder> {
-    private List<JSONObject> mUserJsons;//推荐用户信息，对应的Json数据
-    private Map<Integer,Bitmap> mAvatarBitmaps;//头像，需要另外加载，key为userid
+    private List<User> mUsers;//推荐用户信息
     private Activity mActivity;
-    private RequestQueue mQueue;
+    private ProgressHUD mProgressHUD;
+    private NetworkConnectStatus networkStatus;//网络连接状态
     private UserItemClickListener mUserItemClickListener;
-    public int getId(int position){
-        int id = 0;
-        try {
-            id = mUserJsons.get(position).getInt("id");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return id;
-    }
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageButton closeButton;
-        Button addAttentionButton;
-        ImageView userPortrait;
-        TextView userName;
 
-        public ViewHolder(View view) {
-            super(view);
-            closeButton = (ImageButton) view.findViewById(R.id.close_button);
-            addAttentionButton = (Button) view.findViewById(R.id.add_attention);
-            userPortrait = (ImageView) view.findViewById(R.id.user_portrait);
-            userName = (TextView) view.findViewById(R.id.user_name);
-
-        }
+    public int getId(int position) {  //获取用户的id
+        return mUsers.get(position).getId();
     }
 
+    public RecommendUserAdapter(Activity parentActivity) {
+        this.mActivity = parentActivity;
+        this.mUsers = new ArrayList<>();
+        networkStatus = new NetworkConnectStatus(this.mActivity);
+    }
     public RecommendUserAdapter(Activity parentActivity, UserItemClickListener userItemClickListener) {
         this.mActivity = parentActivity;
         this.mUserItemClickListener = userItemClickListener;
-        this.mUserJsons = new ArrayList<>();
-        this.mAvatarBitmaps = new HashMap<>();
-        mQueue = GlobalApplication.get().getRequestQueue();
+        this.mUsers = new ArrayList<>();
+        networkStatus = new NetworkConnectStatus(this.mActivity);
     }
 
     @Override
@@ -73,70 +67,81 @@ public class RecommendUserAdapter extends RecyclerView.Adapter<RecommendUserAdap
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recommend_user_listitem, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-       // final int position = holder.getAdapterPosition(); //不能这么写？？
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mUserItemClickListener.itemClick(holder.getAdapterPosition());
-            }
-        });
 
-        holder.closeButton.setOnClickListener(new View.OnClickListener() {//点击关闭按钮
+        holder.mUserPortrait.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                mUserItemClickListener.closeBtnClick(holder.getAdapterPosition());
-//                Toast.makeText(v.getContext(), "you click closeButton" + user.getName() , Toast.LENGTH_SHORT).show();
-//                mRecommendUserList.remove(position);
-//                notifyItemRemoved(position);
+            public void onClick(View v) {//跳转至用户主页
+                new PersonOnClickListenerImpl(mActivity, mUsers.get(holder.getAdapterPosition()).getId()).onClick(v);
             }
         });
-        holder.addAttentionButton.setOnClickListener(new View.OnClickListener() {  //点击添加按钮
+        holder.mCloseButton.setOnClickListener(new View.OnClickListener() {//点击关闭按钮
             @Override
-            public void onClick(View v) {
-                mUserItemClickListener.addAttentionBtnClick(holder.getAdapterPosition());
-//                User user = mRecommendUserList.get(position);
-//                Toast.makeText(v.getContext(), "you click addAttentionButton" + user.getName() , Toast.LENGTH_SHORT).show();
-//                mRecommendUserList.remove(position);
-//                notifyItemRemoved(position);
+            public void onClick(View v) { //删掉该项
+               // mUserItemClickListener.closeBtnClick(holder.getAdapterPosition());
+                mUsers.remove(holder.getAdapterPosition());
+                notifyItemRemoved(holder.getAdapterPosition());
+            }
+        });
+        holder.mAddAttention.setOnClickListener(new View.OnClickListener() {  //点击添加按钮
+            @Override
+            public void onClick(View v) { //添加关注
+                //  mUserItemClickListener.addAttentionBtnClick(holder.getAdapterPosition());
+                doAttention(holder.getAdapterPosition());
             }
         });
         return holder;
     }
+    private void doAttention(final int position) {
+        if (networkStatus.isConnectInternet()) {
+            mProgressHUD = ProgressHUD.show(mActivity, "提交中...", true, true, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mProgressHUD.dismiss();
+                }
+            });
+            VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
+                    .with("token", GlobalApplication.getToken())
+                    .with("Accept","application/json"); // 数据格式设置为json
+            MyStringRequest mStringRequest = new MyStringRequest(Request.Method.POST, mActivity.getResources().getString(R.string.ROOT) + "user/~me/follower/" + mUsers.get(position).getId(), headerParams, null,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
 
+                            Log.d("getUser:TAG", response);
+                            Toast.makeText(mActivity, "关注成功".toString(), Toast.LENGTH_SHORT).show();
+                            mProgressHUD.dismiss();
+                            mUsers.remove(position);
+                            notifyItemRemoved(position);
+                        }},
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            mProgressHUD.dismiss();
+                        }
+                    });
+
+            mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
+            GlobalApplication.get().getRequestQueue().add(mStringRequest);
+        }else {
+            mProgressHUD.dismiss();
+            Toast.makeText(mActivity, mActivity.getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        try {
-            holder.userName.setText(mUserJsons.get(position).getString("name"));
-
-            //获取用户头像
-            if(mAvatarBitmaps.containsKey(getId(position))) {
-                holder.userPortrait.setImageBitmap(mAvatarBitmaps.get(getId(position)));
-            } else {
-                MyImageRequest avatarImageRequest = new MyImageRequest(
-                        mActivity.getResources().getString(R.string.ROOT) + "media/" + mUserJsons.get(position).getInt("avatar")
-                        , new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        mAvatarBitmaps.put(getId(position), response);
-                        holder.userPortrait.setImageBitmap(response);
-                    }
-                }, 0, 0, Bitmap.Config.RGB_565
-                        , new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        holder.userPortrait.setImageResource(R.drawable.campus_playing_app_icon);
-                    }
-                });
-                mQueue.add(avatarImageRequest);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        holder.mUserName.setText(mUsers.get(position).getName()); //用户名
+        if (mUsers.get(position).getGender() == 0) { //男生
+            holder.mIvGender.setImageBitmap(BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.male_icon));
+        } else {
+            holder.mIvGender.setImageBitmap(BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.female_icon));
         }
+        //用户头像
+        BitmapLoaderUtil.getInstance().getImage(holder.mUserPortrait, BitmapLoaderUtil.TYPE_ORIGINAL, mUsers.get(position).getAvatar());
     }
 
     @Override
     public int getItemCount() {
-        return mUserJsons.size();
+        return mUsers.size();
     }
 
     /**
@@ -162,20 +167,30 @@ public class RecommendUserAdapter extends RecyclerView.Adapter<RecommendUserAdap
     /**
      * 添加数据列表项
      */
-    public void addUserListItem(JSONObject json) {
-        mUserJsons.add(json);
+    public void addUserListItem(User user) {
+        mUsers.add(user);
 
     }
-    /**
-     * 添加数据列表项
-     */
-    public void addUserListItem(int position, JSONObject json) {
-        mUserJsons.add(position,json);
+
+    public void removeAllItem() {
+        mUsers.clear();
     }
-    /**
-     * 添加数据列表项开头位置
-     */
-    public void addUserPrivateListItem(JSONObject json) {
-        mUserJsons.add(0, json);
+
+    static class ViewHolder extends RecyclerView.ViewHolder{
+        @BindView(R.id.close_button)
+        ImageButton mCloseButton;
+        @BindView(R.id.user_portrait)
+        CircleImageView mUserPortrait;
+        @BindView(R.id.iv_gender)
+        ImageView mIvGender;
+        @BindView(R.id.user_name)
+        TextView mUserName;
+        @BindView(R.id.add_attention)
+        Button mAddAttention;
+
+        ViewHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+        }
     }
 }

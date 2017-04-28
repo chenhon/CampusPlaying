@@ -47,7 +47,7 @@
         android:smoothScrollbar="true"
         android:focusableInTouchMode="true"
         android:focusable="true"
-        ptr:ptrMode="both"/>
+        ptr:ptrMode="pullFromEnd"/>
 
 
 </LinearLayout>

@@ -39,6 +39,7 @@
                 android:text="评论发布人"/>
             <ImageView
                 android:id="@+id/do_recommend"
+                android:paddingLeft="15dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/recommend"/>

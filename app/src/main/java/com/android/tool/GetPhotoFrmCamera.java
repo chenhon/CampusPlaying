@@ -10,7 +10,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 
@@ -45,7 +45,7 @@ public class GetPhotoFrmCamera {
         }
         if (Build.VERSION.SDK_INT >= 24) { //可以选择性的将封装过得Uri共享给外部，是特殊的内容提供器
             imageUri = FileProvider.getUriForFile(activity,//内容提供器
-                    "com.example.happyplay.fileprovider", outputImage);
+                    "com.android", outputImage);
         } else {
             imageUri = Uri.fromFile(outputImage); //低版本直接将file转换成Uri对象
         }

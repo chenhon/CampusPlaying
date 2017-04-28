@@ -22,15 +22,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="照片详情"
             android:textColor="#444"
             android:textSize="17sp"/>
+        <!--活动发布者可以发布通知-->
+        <TextView
+            android:id="@+id/manage_btn"
+            android:textColor="#4060ff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:textSize="15sp"/>
     </FrameLayout>
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/statuses_item_interval"
+        android:layout_height="1dp"
         android:background="#D7D7D7"/>
-
+    <!--放置评论list-->
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/swipyrefreshlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srl_direction="bottom">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,7 +64,6 @@
                     android:layout_width="40dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="10dp"
-                    android:src="@drawable/global_campus_playing_logo"
                 />
 
                 <LinearLayout
@@ -69,8 +80,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textColor="#444444"
-                        android:textSize="15sp"
-                        android:text="发布人"/>
+                        android:textSize="15sp" />
                     <!--图片发布时间-->
                     <TextView
                         android:id="@+id/picture_time"
@@ -79,8 +89,7 @@
                         android:layout_marginTop="2dp"
                         android:maxLines="1"
                         android:ellipsize="end"
-                        android:textSize="13sp"
-                        android:text="上传于 2017-3-10"/>
+                        android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -94,8 +103,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="#444444"
-                android:textSize="15sp"
-                android:text="基围虾好好吃呀~~~"/>
+                android:textSize="15sp"/>
 
             <!--图片依附的活动标题-->
             <TextView
@@ -108,11 +116,20 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textSize="13sp"
-                android:textColor="#4060ff"
-                android:text="#我们去吃龙虾#"/>
+                android:textColor="#4060ff"/>
+            <ImageView
+                android:id="@+id/image"
+                android:padding="@dimen/activity_horizontal_margin"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_vertical"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+            />
             <!--发布的图片-->
             <com.android.tool.PictureView
                 android:id="@+id/activity_image"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -121,37 +138,47 @@
                 pv:picture_type="home_type">
                 <ImageView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/global_campus_playing_logo"/>
+                    android:layout_height="wrap_content" />
             </com.android.tool.PictureView>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/statuses_item_interval"
-                android:background="#D7D7D7"/>
-            <!--总评论数-->
-            <TextView
-                android:id="@+id/comment_count"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textColor="#444444"
-                android:textSize="15sp"
-                android:text="评论(13)"/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/comment_count"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textColor="#444444"
+                    android:textSize="15sp"/>
+                <ImageView
+                    android:id="@+id/do_recommend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/recommend"/>
+            </LinearLayout>
 
-            <!--放置评论list-->
-            <FrameLayout
-                android:id="@+id/recommend_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-            </FrameLayout>
+                <!--具体内容放在滑动条里面-->
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <FrameLayout
+                        android:id="@+id/comment_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                    </FrameLayout>
+                </ScrollView>
+
         </LinearLayout>
 
     </ScrollView>
-
+</com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 </LinearLayout>

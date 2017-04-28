@@ -1,9 +1,11 @@
 package com.android.search;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -15,10 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.R;
+import com.android.activity.DetailActivity;
 import com.android.adapter.ActivityListAdapter;
-import com.android.adapter.FollowListAdapter;
+import com.android.adapter.PersonListAdapter;
 import com.android.guide.BaseActivity;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
+import com.android.model.Activity;
+import com.android.person.PersonOnClickListenerImpl;
 import com.android.tool.FlowLayout;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
@@ -29,6 +34,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import org.json.JSONArray;
@@ -40,8 +46,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class SearchActivity extends BaseActivity {
-
-
+    private static final int LOAD_DATA_COUNT = 3;//每页加载10条数据
+    private static final int LOAD_USER_COUNT = 5;//每页加载10条数据
     private static int SEARCH_ACTIVITY = 0;
     private static int SEARCH_USER = 1;
     private static int ORDER_TIME = 0;
@@ -75,7 +81,7 @@ public class SearchActivity extends BaseActivity {
     TextView mTvOrderBytime;
 
     private ActivityListAdapter activityAdapter;
-    private FollowListAdapter followAdapter;
+    private PersonListAdapter followAdapter;
     private ArrayAdapter<String> spinnerAdapter;
     private ListView mListView;
     private RequestQueue mQueue;
@@ -88,6 +94,9 @@ public class SearchActivity extends BaseActivity {
     private int activityOrder = ORDER_TIME;//默认活动按时间排序
     private boolean isLoadActivity = false;
     private boolean isLoadUser = false;
+
+    private int listTotal;//搜索总数
+    private int loadPage = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,45 +122,61 @@ public class SearchActivity extends BaseActivity {
         mListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         mListView.setDivider(null);
         activityAdapter = new ActivityListAdapter(this);
-        followAdapter = new FollowListAdapter(this);
-
-        Toast.makeText(SearchActivity.this, "颜色:" + mTvOrderByhot.getCurrentTextColor(), Toast.LENGTH_SHORT).show();
-
-
+        followAdapter = new PersonListAdapter(this);
     }
 
     /**
      * 设置监听事件
      */
     private void setListener() {
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(isLoadActivity){
+                    Bundle bundle = new Bundle();
+
+                    bundle.putInt("aid", activityAdapter.getAid(position-1)); //活动id
+                    bundle.putInt("creatorId", activityAdapter.getUid(position-1)); //发布活动着id
+                    Intent intent = new Intent(SearchActivity.this, DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtras(bundle);  //传入详细信息
+                    SearchActivity.this.startActivity(intent);
+                } else if(isLoadUser) {//跳转到用户详情界面
+                    new PersonOnClickListenerImpl(SearchActivity.this, followAdapter.getId(position-1)).onClick(view);
+                }
+            }
+        });
         mSpinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 searchType = pos;//记录搜索类型
+                loadPage = 0;
+                listTotal = 0;
+                lastKeyWord = "";
+                mEtSearchInput.setText(""); //清空输入框
+                if (isLoadUser) {
+                    followAdapter.clearAllItem();
+                    followAdapter.notifyDataSetChanged();
+                    isLoadUser = false;
+                }
+                if (isLoadActivity) {
+                    activityAdapter.clearAllItem();
+                    activityAdapter.notifyDataSetChanged();
+                    isLoadActivity = false;
+                }
                 if (SEARCH_ACTIVITY == searchType) {
-                    lastKeyWord = "";
-                    mEtSearchInput.setText(""); //清空输入框
                     activityType = 0; //0表示全部
+                    for (int i = 0; i < mActivityTag.getChildCount(); i++) {  //设置所有标签的颜色
+                        ((TextView) mActivityTag.getChildAt(i)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
+                    }
                     activityOrder = ORDER_TIME;//默认活动按时间排序
                     mLlActivityTag.setVisibility(View.VISIBLE);
                     mLlOrder.setVisibility(View.GONE);
-                    if (isLoadUser) {
-                        followAdapter.clearAllItem();
-                        followAdapter.notifyDataSetChanged();
-                        isLoadUser = false;
-                    }
                 } else if (SEARCH_USER == searchType) { //只有从活动跳到用户是会调用
-                    lastKeyWord = "";
-                    mEtSearchInput.setText("");//清空输入框
                     mLlActivityTag.setVisibility(View.GONE);//隐藏tag
                     mLlOrder.setVisibility(View.GONE);
-                    if (isLoadActivity) {
-                        activityAdapter.clearAllItem();
-                        activityAdapter.notifyDataSetChanged();
-                        isLoadActivity = false;
-                    }
                 }
-                Toast.makeText(SearchActivity.this, "你点击的是:" + mItems[pos], Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(SearchActivity.this, "你点击的是:" + mItems[pos], Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -172,7 +197,7 @@ public class SearchActivity extends BaseActivity {
                         ((TextView) mActivityTag.getChildAt(activityType-1)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
                     }
                     ((TextView) mActivityTag.getChildAt(position)).setBackgroundColor(Color.RED);
-                    activityType = position + 1;
+                    activityType = position + 1;//记录选中标签的位置，没有选择标签则默认是0
                     //Toast.makeText(SearchActivity.this, "你点击的类型是:" + activityType, Toast.LENGTH_SHORT).show();
                 }
             });
@@ -200,9 +225,11 @@ public class SearchActivity extends BaseActivity {
                 mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));
                 activityOrder = ORDER_TIME;
 
-                followAdapter.clearAllItem();
-                followAdapter.notifyDataSetChanged();
-                isLoadUser = false;
+                activityAdapter.clearAllItem();
+                activityAdapter.notifyDataSetChanged();
+                loadPage = 0;
+                listTotal = 0;
+                isLoadActivity = false;
                 mEtSearchInput.setText(lastKeyWord);
                 mEtSearchInput.setSelection(lastKeyWord.length());
                 searchActivity(lastKeyWord);
@@ -218,12 +245,33 @@ public class SearchActivity extends BaseActivity {
                 mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_selected));
                 activityOrder = ORDER_HOT;
 
-                followAdapter.clearAllItem();
-                followAdapter.notifyDataSetChanged();
-                isLoadUser = false;
+                activityAdapter.clearAllItem();
+                activityAdapter.notifyDataSetChanged();
+                loadPage = 0;
+                listTotal = 0;
+                isLoadActivity = false;
                 mEtSearchInput.setText(lastKeyWord);
                 mEtSearchInput.setSelection(lastKeyWord.length());
                 searchActivity(lastKeyWord);
+            }
+        });
+
+        mPullListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
+
+            //下拉刷新
+            @Override
+            public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+
+            }
+            //上拉加载更多
+            @Override
+            public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+               // new ActivityListActivity.GetDataTask().execute();
+                if(isLoadActivity) {
+                    searchActivity(lastKeyWord);
+                } else if(isLoadUser) {
+                    searchUser();
+                }
             }
         });
     }
@@ -233,6 +281,7 @@ public class SearchActivity extends BaseActivity {
      */
     String lastKeyWord = "";
     private void doSearch() {
+
         String keyWord = mEtSearchInput.getText().toString();
         if ((keyWord == null) || (keyWord.length() == 0)) {
             Toast.makeText(SearchActivity.this, "请输入关键字", Toast.LENGTH_SHORT).show();
@@ -277,8 +326,8 @@ public class SearchActivity extends BaseActivity {
         if (networkStatus.isConnectInternet()) {
 
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
-                    .with("count", String.valueOf(10)) //每页条数
-                    .with("page", "1");    //获取第二页的数据
+                    .with("count", String.valueOf(LOAD_USER_COUNT)) //每页条数
+                    .with("page", String.valueOf(loadPage+1));    //获取第二页的数据
 
             VolleyRequestParams headerParams = new VolleyRequestParams() //header上的参数
                     .with("token", GlobalApplication.getToken())
@@ -329,7 +378,11 @@ public class SearchActivity extends BaseActivity {
 
             if (jsonArr.length() > 0) {
                 isLoadUser = true;
+                loadPage++;
                 lastKeyWord = mEtSearchInput.getText().toString();
+            } else {
+                Toast.makeText(this, "已加载完".toString(), Toast.LENGTH_SHORT).show();
+                return;
             }
 
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
@@ -337,6 +390,7 @@ public class SearchActivity extends BaseActivity {
                 followAdapter.addFollowListItem(jsonArr.getJSONObject(i));
             }
             mListView.setAdapter(followAdapter);//设置适配器
+            activityAdapter.notifyDataSetChanged();
             //endOrder = startOrder + jsonArr.length();
             //statusesAdapter = new StatusesListAdapter(getActivity()); //初始化adapter
 
@@ -364,17 +418,14 @@ public class SearchActivity extends BaseActivity {
         if (networkStatus.isConnectInternet()) {
 
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
-                    .with("count", String.valueOf(10)) //每页条数
-                    .with("page", "1")    //获取第二页的数据
+                    .with("count", String.valueOf(LOAD_DATA_COUNT)) //每页条数
+                    .with("page", String.valueOf(loadPage+1))    //获取第二页的数据
                     .with("order", String.valueOf(activityOrder))     //排序
                     .with("filter", String.valueOf(activityType));    //类型
 
             VolleyRequestParams headerParams = new VolleyRequestParams() //header上的参数
                     //.with("token", GlobalApplication.getToken())
                     .with("Accept", "application/json"); // 数据格式设置为json
-/*            VolleyRequestParams Params = new VolleyRequestParams() //header上的参数
-                    //.with("token", GlobalApplication.getToken())
-                    .with("Accept", "application/json"); // 数据格式设置为json*/
             Log.d("getACTIVITY:TAG", RequestManager.getURLwithParams(rootString, urlParams) + GlobalApplication.getToken());
             mStringRequest = new MyStringRequest(Request.Method.GET, RequestManager.getURLwithParams(rootString, urlParams), headerParams, null,
                     new Response.Listener<String>() {
@@ -419,17 +470,36 @@ public class SearchActivity extends BaseActivity {
 
             if (jsonArr.length() > 0) {
                 isLoadActivity = true;//记录加载到数据
+                loadPage++;
                 lastKeyWord = mEtSearchInput.getText().toString();//记录本次搜索关键字
                 mLlOrder.setVisibility(View.VISIBLE);//显示排序条
 /*                mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_selected));
                 mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));*/
+            } else {
+                Toast.makeText(this, "已加载完".toString(), Toast.LENGTH_SHORT).show();
+                return;
             }
 
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
+                JSONObject jo = jsonArr.getJSONObject(i);
                 //适配器中添加数据项
-                activityAdapter.addActivityListItem(jsonArr.getJSONObject(i));
+                Activity activity = new Activity();
+                activity.setId(jo.getInt("id"));
+                activity.setCreatorId(jo.getInt("creator"));
+                activity.setCreatorName(jo.getJSONObject("creator_obj").getString("name"));
+                activity.setAvatarId(jo.getJSONObject("creator_obj").getInt("avatar"));
+                activity.setTitle(jo.getString("title"));
+                activity.setContent(jo.getString("content"));
+                activity.setImageId(jo.getInt("image"));
+                activity.setTime(jo.getInt("created_at"));
+                activity.setWisherCount(jo.getInt("wisher_count"));
+                activity.setParticipantCount(jo.getInt("participant_count"));
+                activity.setVerifyStatus(jo.getInt("verify_state"));
+                activity.setState(jo.getInt("state"));
+                activityAdapter.addActivityListItem(activity);
             }
             mListView.setAdapter(activityAdapter);//设置适配器
+            activityAdapter.notifyDataSetChanged();
             //endOrder = startOrder + jsonArr.length();
             //statusesAdapter = new StatusesListAdapter(getActivity()); //初始化adapter
 
@@ -438,6 +508,18 @@ public class SearchActivity extends BaseActivity {
             Log.d("getFOLLOW:TAG", e.toString());
         }
 
+    }
+
+    /**
+     * 功能描述： onTouchEvent事件中，点击android系统的软键盘外的其他地方，可隐藏软键盘，以免遮挡住输入框
+     * @param event
+     *            当前的触控事件
+     * @return boolean类型的标记位。当用户点击后才会隐藏软键盘。
+     */
+    @Override
+    public boolean onTouchEvent(android.view.MotionEvent event) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        return imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
     }
 
 }

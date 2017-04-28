@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.android.R;
 import com.android.adapter.SystemMsgListAdapter;
 import com.android.guide.BaseActivity;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.RequestManager;
@@ -39,20 +39,22 @@ import butterknife.ButterKnife;
  */
 public class SystemMessageActivity extends BaseActivity {
 
+
+    private static int LOAD_DATA_COUNT = 10;
     @BindView(R.id.back_btn)
     ImageView mBackBtn;
     @BindView(R.id.title_name)
     TextView mTitleName;
     @BindView(R.id.msgPullListView)
     PullToRefreshListView mMsgPullListView;
-
-    private static int LOAD_DATA_COUNT = 10;
     private SystemMsgListAdapter msgAdapter;
     private ListView msgListView;
     private NetworkConnectStatus networkStatus;//网络连接状态
     private MyStringRequest mStringRequest;
     private RequestQueue mQueue;
     private String rootString;
+    private int listTotal;//评论总数
+    private int loadPage = 0;
 
     public static void startActivity(Activity activity) {
         Intent intent = new Intent(activity, SystemMessageActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -65,10 +67,11 @@ public class SystemMessageActivity extends BaseActivity {
         setContentView(R.layout.activity_system_message);
         ButterKnife.bind(this);
 
+
         mQueue = GlobalApplication.get().getRequestQueue();
         networkStatus = new NetworkConnectStatus(this);
         rootString = getResources().getString(R.string.ROOT)
-                +"msg/private/"+0;//系统消息的uid为0
+                + "msg/private/-255";//系统消息的uid为-255
 
         initListView();
         setListener();
@@ -82,7 +85,10 @@ public class SystemMessageActivity extends BaseActivity {
         msgListView = mMsgPullListView.getRefreshableView();//获取动态列表控件
         msgListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         msgListView.setDivider(null);
+        msgAdapter = new SystemMsgListAdapter(this);
+        msgListView.setAdapter(msgAdapter);
     }
+
     /**
      * 设置监听事件
      */
@@ -107,13 +113,15 @@ public class SystemMessageActivity extends BaseActivity {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-                new SystemMessageActivity.GetDataTask().execute();
+                // new SystemMessageActivity.GetDataTask().execute();
+                mMsgPullListView.onRefreshComplete();
             }
 
             //上拉加载更多
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-                msgLoadMoreData();
+                //  msgLoadMoreData();
+                new GetDataTask().execute();
             }
         });
         mBackBtn.setOnClickListener(new View.OnClickListener() {
@@ -128,11 +136,11 @@ public class SystemMessageActivity extends BaseActivity {
      * 获取关注用户列表
      */
     private void getListData() {
-        msgAdapter = new SystemMsgListAdapter(this);
+
         mMsgPullListView.setRefreshing(true);
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
-                    .with("page","1")    //加载第一页
+                    .with("page", String.valueOf(loadPage + 1))    //加载第一页
                     .with("count", String.valueOf(LOAD_DATA_COUNT)); //每页条数
             VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
                     .with("token", GlobalApplication.getToken())
@@ -143,15 +151,16 @@ public class SystemMessageActivity extends BaseActivity {
                         public void onResponse(String response) {
                             Log.d("getPHOTO:TAG", response);
                             parseStatusJson(response); //将数据填入到List中去
-                            msgListView.setAdapter(msgAdapter);//设置适配器
                             mMsgPullListView.onRefreshComplete();
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(SystemMessageActivity.this, "网络繁忙，请稍后再试".toString(), Toast.LENGTH_SHORT).show();
                             Log.d("getTIMELINE:TAG", "出错");
                             Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                            mMsgPullListView.onRefreshComplete();
                         }
                     });
 
@@ -171,9 +180,22 @@ public class SystemMessageActivity extends BaseActivity {
     private void parseStatusJson(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
+            listTotal = jsonObject.getInt("total");//总条数
+            if (0 == listTotal) {
+                Toast.makeText(this, "暂无系统通知".toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
+                Toast.makeText(this, "活动列表已加载完！", Toast.LENGTH_SHORT).show();
+                return;
+            }
             JSONArray jsonArr = jsonObject.getJSONArray("items");
             for (int i = 0; i < jsonArr.length(); i++) {
                 msgAdapter.addMagListItem(jsonArr.getJSONObject(i));
+            }
+            if (jsonArr.length() > 0) {
+                loadPage++;
+                msgAdapter.notifyDataSetChanged();
             }
 
         } catch (Exception e) {
@@ -203,6 +225,7 @@ public class SystemMessageActivity extends BaseActivity {
 
         /**
          * 子线程中执行
+         *
          * @param params
          * @return
          */
@@ -217,12 +240,14 @@ public class SystemMessageActivity extends BaseActivity {
 
         /**
          * 主线程中执行
+         *
          * @param result
          */
         @Override
         protected void onPostExecute(String[] result) {
 
-            msgAddNewData();
+            //msgAddNewData();
+            getListData();
             super.onPostExecute(result);
         }
     }

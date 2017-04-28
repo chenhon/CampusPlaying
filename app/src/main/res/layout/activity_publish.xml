@@ -110,24 +110,11 @@
         </LinearLayout>
         <ImageView
             android:id="@+id/upload_picture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-        />
-<!--        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginLeft="4dp"
-                android:textColor="#444444"
-                android:textSize="20sp"
-                android:text="图片上传"/>
-
-        </LinearLayout>-->
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+        />
 
         <!--活动时间-->
         <LinearLayout
@@ -202,17 +189,20 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/detail_location"/>
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginLeft="4dp"
+                android:layout_marginRight="10dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
                 android:text="活动地点"/>
             <TextView
                 android:id="@+id/address_set"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="right"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="设置地点"/>
         </LinearLayout>
 
@@ -245,7 +235,7 @@
                 android:layout_height="wrap_content"
                 android:text="元"/>
         </LinearLayout>
-        <!--费用-->
+        <!--活动类型-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="45dp"

@@ -5,75 +5,68 @@ package com.android.model;
  */
 
 public class PrivateMsg {
-    /**
-     * target_id : 私信对象id
-     * avatar : 私信对象图片id
-     * recentContent : 最近的一条记录
-     * noReadCount : 10
-     * totalCount : 100
-     */
 
-    private String target_id;
-    private String avatar;
-    private String name;
-    private String recentContent;
-    private long recentTime;
-    private int noReadCount;
-    private int totalCount;
+    private int targetId;//私信对象id
+    private int avatarId;//私信对象头像id
+    private String targetName;//私信对象的昵称
+    private String recentContent;//最近的一条内容
+    private long recentTime;//最近一条私信发送的时间
+    private int noReadCount;//未读私信数
+    private int totalCount; //全部私信数
 
-    public void setTarget_id(String target_id) {
-        this.target_id = target_id;
+    public void setAvatarId(int avatarId) {
+        this.avatarId = avatarId;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setRecentContent(String recentContent) {
-        this.recentContent = recentContent;
-    }
-
-    public void setRecentTime(long recentTime) {
-        this.recentTime = recentTime;
+    public int getAvatarId() {
+        return avatarId;
     }
 
     public void setNoReadCount(int noReadCount) {
         this.noReadCount = noReadCount;
     }
 
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
+    public int getNoReadCount() {
+        return noReadCount;
     }
 
-    public String getTarget_id() {
-        return target_id;
+    public void setRecentContent(String recentContent) {
+        this.recentContent = recentContent;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public String getName() {
-        return name;
-    }
     public String getRecentContent() {
         return recentContent;
+    }
+
+    public void setRecentTime(long recentTime) {
+        this.recentTime = recentTime;
     }
 
     public long getRecentTime() {
         return recentTime;
     }
 
-    public int getNoReadCount() {
-        return noReadCount;
+    public void setTargetId(int targetId) {
+        this.targetId = targetId;
+    }
+
+    public int getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
     }
 
     public int getTotalCount() {
         return totalCount;
     }
-
 }

@@ -11,12 +11,20 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.ImageRequest;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+/*
+* type # [small/median/large/orig] # 默认为median
+*  small宽度为100, median宽度为640, large宽度为1280, 等比压缩
+*/
 public class MyImageRequest extends ImageRequest {
+    public static final String SIZE_SMALL = "small";  //宽度100
+    public static final String SIZE_MEDIAN = "median";//宽度640
+    public static final String SIZE_LARGE = "large";  //宽度1280
+    public static final String SIZE_ORIGNAL = "orig";
 
+
+    private Map<String, String> mHeaderParams = new HashMap<>();
 	public MyImageRequest(String url, Listener<Bitmap> listener, int maxWidth, int maxHeight, Config decodeConfig, ErrorListener errorListener) {
 		super(url, listener, maxWidth, maxHeight, decodeConfig, errorListener);
 	}
@@ -39,14 +47,28 @@ public class MyImageRequest extends ImageRequest {
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
     	
-    	Map<String, String> headers = super.getHeaders();
+/*    	Map<String, String> headers = super.getHeaders();
 
         if (headers == null || headers.equals(Collections.emptyMap())) {
             headers = new HashMap<String, String>();
-        }
-        
-       // GlobalApplication.addSessionCookie(headers);
+        }*/
 		
-        return headers;
+        return mHeaderParams;
+    }
+
+    public void addHeader(String key, String value) {
+        mHeaderParams.put(key,value);
+    }
+
+    public void setImageSiza(String size) {
+        switch(size) {
+            case SIZE_SMALL:
+            case SIZE_MEDIAN:
+            case SIZE_LARGE:
+            case SIZE_ORIGNAL:  mHeaderParams.put("type ",size);
+                break;
+            default:
+                break;
+        }
     }
 }

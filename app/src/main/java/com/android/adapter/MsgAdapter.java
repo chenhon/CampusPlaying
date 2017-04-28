@@ -1,5 +1,6 @@
 package com.android.adapter;
 
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.R;
+import com.android.GlobalApplication;
 import com.android.model.Private;
+import com.android.person.PersonOnClickListenerImpl;
+import com.android.tool.BitmapLoaderUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +27,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
     private List<Private> msgs = new ArrayList();
+    private int AvatarId; //对方的头像id
+    private int uid;//对方的id
+    private Activity mActivity;
     static class ViewHolder extends RecyclerView.ViewHolder{
         CircleImageView user_avatar;
-
-
         LinearLayout receivedLayout;
         LinearLayout sendLayout;
         TextView receivedMsg;
@@ -44,8 +49,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         }
 
     }
-    public MsgAdapter(List<Private> list) {
+    public MsgAdapter(Activity activity, List<Private> list, int uid, int uAvatar) {
+        this.mActivity = activity;
         msgs = list;
+        this.AvatarId = uAvatar;
+        this.uid = uid;
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -58,16 +66,19 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         Private msg = msgs.get(position);
         if(msg.getDirection() == Private.GET_TYPE) { //接收的消息
-           // holder.leftAvatar.setImageResource(); //这里要进行图标的设置
+            BitmapLoaderUtil.getInstance().getImage(holder.leftAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, AvatarId);
             holder.receivedLayout.setVisibility(View.VISIBLE);
             holder.sendLayout.setVisibility(View.GONE);
             holder.receivedMsg.setText(msg.getContent());
+            holder.leftAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity,uid));
         }else if(msg.getDirection() == Private.SEND_TYPE) {
-            // holder.leftAvatar.setImageResource(); //这里要进行图标的设置
+            holder.rightAvatar.setImageBitmap(GlobalApplication.getMyAvatar());
+            holder.rightAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity,GlobalApplication.getMySelf().getId()));
             holder.receivedLayout.setVisibility(View.GONE);
             holder.sendLayout.setVisibility(View.VISIBLE);
             holder.sendMsg.setText(msg.getContent());
         }
+
     }
 
     @Override

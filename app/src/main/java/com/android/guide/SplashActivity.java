@@ -80,10 +80,21 @@ public class SplashActivity extends BaseActivity {
 
     //进入登录界面
     private void goLogin() {
-         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-        //Intent intent = new Intent(SplashActivity.this, PublishActivity.class);
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        //Intent intent = new Intent(SplashActivity.this, CommunicateActivity.class);
         SplashActivity.this.startActivity(intent);
         SplashActivity.this.finish();
+
+        //开始轮询
+        //PollingUtils.startPollingService(this, 5, PollingService.class, PollingService.ACTION);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //Stop polling service
+//        System.out.println("Stop polling service...");
+//        PollingUtils.stopPollingService(this, PollingService.class, PollingService.ACTION);
     }
 
 }

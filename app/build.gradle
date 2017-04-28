@@ -38,7 +38,7 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     //SwipyRefreshLayout
     compile 'com.github.orangegangsters:swipy:1.2.3@aar'
-
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
+    compile files('libs/MobCommons-2017.0322.0931.jar')
 }

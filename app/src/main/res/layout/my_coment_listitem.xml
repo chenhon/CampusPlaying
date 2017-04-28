@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--评论项布局-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_edittext_normal_shape"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_avatar"
+            android:layout_height="40dp"
+            android:layout_width="40dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/global_campus_playing_logo"
+        />
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop= "@id/user_avatar"
+            android:layout_toRightOf="@id/user_avatar"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#444444"
+            android:textSize="15sp" />
+        <TextView
+            android:id="@+id/comment_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/user_avatar"
+            android:layout_marginBottom="5dp"
+            android:layout_toRightOf="@id/user_avatar"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#444444"
+            android:textSize="10sp" />
+        <TextView
+            android:id="@+id/comment_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/user_avatar"
+            android:textColor="#616161"
+            android:textSize="12sp"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+        <TextView
+            android:id="@+id/tv_replay"
+            android:text="回复"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:textColor="#23527c"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_attached"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:id="@+id/rl_picture"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            >
+            <ImageView
+                android:id="@+id/picture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+            />
+            <TextView
+                android:id="@+id/attached_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="4dp"
+                android:paddingRight="2dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:textSize="8sp"
+                android:textColor="#fff"
+                android:background="@drawable/right_tag"/>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/attached_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="60dp"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:gravity="center_vertical"
+            android:background="#efefef"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="#444"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+
+</LinearLayout>

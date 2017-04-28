@@ -4,18 +4,25 @@
     android:background="#D7D7D7"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/page_title"
+    <!--标题栏-->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="#fff"
-        android:gravity="center"
-        android:text="提    醒"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:textColor="#444444"
-        android:textSize="17sp" />
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="提    醒"
+            android:textColor="#444"
+            android:textSize="20sp"/>
+
+    </FrameLayout>
 
     <View android:layout_width="match_parent"
         android:layout_height="10dp"/>
@@ -139,11 +146,4 @@
         android:focusableInTouchMode="true"
         android:focusable="true"
         ptr:ptrMode="both"/>
-<!--    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_msg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-    />-->
-
 </LinearLayout>

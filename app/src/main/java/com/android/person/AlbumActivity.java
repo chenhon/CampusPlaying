@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.android.R;
 import com.android.adapter.AlbumListAdapter;
 import com.android.guide.BaseActivity;
-import com.android.guide.GlobalApplication;
+import com.android.GlobalApplication;
 import com.android.tool.DataUtils;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;

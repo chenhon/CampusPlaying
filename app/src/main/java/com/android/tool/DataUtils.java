@@ -10,12 +10,13 @@ import java.util.Date;
  */
 
 public class DataUtils {
-    public static final String DATA_TYPE1 = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATA_TYPE1 = "MM月dd日HH:mm";
     public static final String DATA_TYPE2 = "MM-dd HH:mm";
     public static final String DATA_TYPE3 = "yyyy-MM-dd";
     public static final String DATA_TYPE4 = "yyyy年MM月dd日 HH:mm";
     public static final String DATA_TYPE5 = "yyyyMM";
     public static final String DATA_TYPE6 = "yyyy-MM-dd HH:mm";
+    public static final String DATA_TYPE7 ="yyyy_MM_dd_HH_mm_ss";
     /*
      * 将时间戳转换为时间
      */

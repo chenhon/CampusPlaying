@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--对话框回复按钮-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item android:state_focused="true">
+	    <shape>
+	        <solid android:color="#878787" />
+	        <stroke  
+        		android:width="1dp"        
+        		android:color="#878787" />
+	        <corners android:radius="3dp"/>
+	
+			<padding 
+		        android:top="1dp"
+		        android:bottom="1dp"
+		        android:left="1dp"
+		        android:right="1dp"/>
+	    </shape>
+	</item>
+	<item android:state_pressed="true">
+	    <shape>
+	        <solid android:color="#ede8e8" />
+	        <stroke  
+        		android:width="1dp"        
+        		android:color="#ede8e8" />
+	        <corners android:radius="3dp"/>
+	
+			<padding 
+		        android:top="1dp"
+		        android:bottom="1dp"
+		        android:left="1dp"
+		        android:right="1dp"/>
+	    </shape>
+	</item>
+	<item >
+	    <shape>
+	        <solid android:color="#878787" />
+			<stroke  
+        		android:width="1dp"        
+        		android:color="#878787" />
+	        <corners android:radius="3dp"/>
+	
+			<padding 
+		        android:top="1dp"
+		        android:bottom="1dp"
+		        android:left="1dp"
+		        android:right="1dp"/>
+	    </shape>
+	</item>
+</selector>

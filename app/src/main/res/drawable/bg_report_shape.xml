@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--编辑框未获取焦点时的背景设置-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--填充颜色-->
+    <solid android:color="#f26e7673" />
+
+    <!--边角弧度-->
+    <corners android:radius="3dip"/>
+
+    <!--边线宽度和颜色-->
+    <stroke
+        android:width="1dip"
+        android:color="#6e7673" />
+</shape>

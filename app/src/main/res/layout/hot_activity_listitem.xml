@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="170dp"
-    android:padding="5dp"
-    android:layout_marginLeft="5dp"
-    android:background="#fff">
+    android:layout_height="match_parent">
     <ImageView
         android:id="@+id/hot_activity_picture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/campus_playing_app_icon"
         android:scaleType="fitXY"/>
-</FrameLayout>
+    <!--热门活动标题-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical"
+        android:background="#af9c9b9b">
+        <TextView
+            android:id="@+id/hot_activity_title"
+            android:paddingLeft="5dp"
+            android:layout_marginRight="150dp"
+            android:gravity="center_vertical"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#fff"
+            android:text="暂无活动"/>
+    </LinearLayout>
+
+</RelativeLayout>

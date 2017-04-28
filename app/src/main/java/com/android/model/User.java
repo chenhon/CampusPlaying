@@ -22,13 +22,14 @@ public class User {
 
     private int id;
     private String user;
+    private String password;
     private String name;
     private int avatar;
     private String description;
     private int followersCount;
     private int fansCount;
     private int activitysCount;
-    private int relation;
+    private String relation;
     private int gender; //男0    女1
 
     public int getId() {
@@ -37,6 +38,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getName() {
@@ -102,14 +111,14 @@ public class User {
     }
 
     public void setActivitysCount(int activitys_count) {
-        this.activitysCount = activitysCount;
+        this.activitysCount = activitys_count;
     }
 
-    public int getRelation() {
+    public String getRelation() {
         return relation;
     }
 
-    public void setRelation(int relation) {
+    public void setRelation(String relation) {
         this.relation = relation;
     }
 }

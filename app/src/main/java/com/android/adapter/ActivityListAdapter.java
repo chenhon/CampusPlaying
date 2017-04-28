@@ -1,7 +1,6 @@
 package com.android.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,19 +9,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.R;
-import com.android.guide.GlobalApplication;
+import com.android.person.PersonOnClickListenerImpl;
+import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.DataUtils;
-import com.android.tool.MyImageRequest;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-
-import org.json.JSONObject;
+import com.android.tool.ShareUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,51 +28,33 @@ import static com.android.R.id.activity_content;
  */
 
 public class ActivityListAdapter extends BaseAdapter {
-    private Map<Integer, Bitmap> mAvatarBitmaps;//头像，需要另外加载  key--aid
-    private Map<Integer, Bitmap> mActivityImages;//活动图像，需要另外加载
-    private List<JSONObject> mActivityJsons;//关注列表详细信息，对应的Json数据
+    private List<com.android.model.Activity> mActivitys;
     private Activity mActivity;
-    private RequestQueue mQueue;
 
     public ActivityListAdapter(Activity activity) {
         this.mActivity = activity;
-        this.mActivityJsons = new ArrayList<>();
-        this.mAvatarBitmaps = new HashMap<>();
-        this.mActivityImages = new HashMap<>();
-        this.mQueue = GlobalApplication.get().getRequestQueue();
+        mActivitys = new ArrayList();
+    }
+
+    public int getUid(int position) {
+        return mActivitys.get(position).getCreatorId();
+    }
+
+    public int getAid(int position) {
+        return mActivitys.get(position).getId();
     }
 
     public void clearAllItem() {
-        mAvatarBitmaps.clear();
-        mActivityImages.clear();
-        mActivityJsons.clear();
-    }
-    public Bitmap getAvatar(int position) {
-        return mAvatarBitmaps.get(getIdentifier(position));
-    }
-    public Bitmap getActivityImage(int position) {
-        return mActivityImages.get(getIdentifier(position));
-    }
-    public JSONObject getAttachObj(int position) {
-        return mActivityJsons.get(position);
-    }
-    private int getIdentifier(int position) {
-        int aid = 0;
-        try{
-            aid = mActivityJsons.get(position).getInt("id");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return aid;
+        mActivitys.clear();
     }
     @Override
     public int getCount() {
-        return mActivityJsons.size();
+        return mActivitys.size();
     }
 
     @Override
     public Object getItem(int postion) {
-        return mActivityJsons.get(postion);
+        return mActivitys.get(postion);
     }
 
     @Override
@@ -109,13 +84,13 @@ public class ActivityListAdapter extends BaseAdapter {
     private void setActivityView(final int position, final ViewHolder viewHolder) {
         try {
 
-            viewHolder.mUserName.setText(mActivityJsons.get(position).getJSONObject("creator_obj").getString("name"));//发布人名称
-            viewHolder.mPublishedTime.setText(DataUtils.stampToDate(DataUtils.DATA_TYPE2, mActivityJsons.get(position).getLong("created_at")));//发布时间
-            viewHolder.mActivityTitle.setText(mActivityJsons.get(position).getString("title"));//活动标题
-            viewHolder.mActivityContent.setText(mActivityJsons.get(position).getString("content"));//活动内容
-            viewHolder.mWisherCount.setText(mActivityJsons.get(position).getString("wisher_count"));//活动热度
-            viewHolder.mParticipantCount.setText(mActivityJsons.get(position).getString("participant_count"));//已参与人数
-            switch (mActivityJsons.get(position).getInt("state")) { //活动进行状态
+            viewHolder.mUserName.setText(mActivitys.get(position).getCreatorName());//发布人名称
+            viewHolder.mPublishedTime.setText(DataUtils.stampToDate(DataUtils.DATA_TYPE2, mActivitys.get(position).getTime()));//发布时间
+            viewHolder.mActivityTitle.setText(mActivitys.get(position).getTitle());//活动标题
+            viewHolder.mActivityContent.setText(mActivitys.get(position).getContent());//活动内容
+            viewHolder.mWisherCount.setText(mActivitys.get(position).getWisherCount()+"");//活动热度
+            viewHolder.mParticipantCount.setText(mActivitys.get(position).getParticipantCount()+"");//已参与人数
+            switch (mActivitys.get(position).getState()) { //活动进行状态
                 case 0:
                     viewHolder.mActivityStatusText.setText("发起中");
                     viewHolder.mActivityStatusImage.setImageResource(R.drawable.detail_sign_up);
@@ -130,51 +105,17 @@ public class ActivityListAdapter extends BaseAdapter {
                     break;
 
             }
-
-            //图像请求
-            //获取用户头像
-            if (mAvatarBitmaps.get(getIdentifier(position)) != null) {
-                viewHolder.mUserAvatar.setImageBitmap(mAvatarBitmaps.get(getIdentifier(position)));
-            } else {
-                MyImageRequest avatarImageRequest = new MyImageRequest(
-                        mActivity.getResources().getString(R.string.ROOT) + "media/" + mActivityJsons.get(position).getJSONObject("creator_obj").getInt("avatar")
-                        , new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        mAvatarBitmaps.put(getIdentifier(position), response);
-                        viewHolder.mUserAvatar.setImageBitmap(response);
-                    }
-                }, 0, 0, Bitmap.Config.RGB_565
-                        , new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        viewHolder.mUserAvatar.setImageResource(R.drawable.campus_playing_app_icon);
-                    }
-                });
-                mQueue.add(avatarImageRequest);
-            }
-
+            //点击头像进入用户主页
+            viewHolder.mUserAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity, mActivitys.get(position).getCreatorId()));
+            BitmapLoaderUtil.getInstance().getImage(viewHolder.mUserAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, mActivitys.get(position).getAvatarId());
             //获取活动图像
-            if (mActivityImages.get(getIdentifier(position)) != null) {
-                viewHolder.mActivityImage.setImageBitmap(mActivityImages.get(getIdentifier(position)));
-            } else {
-                MyImageRequest activityImageRequest = new MyImageRequest(
-                        mActivity.getResources().getString(R.string.ROOT) + "media/" + mActivityJsons.get(position).getInt("image")
-                        , new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        mActivityImages.put(getIdentifier(position), response);
-                        viewHolder.mActivityImage.setImageBitmap(response);
-                    }
-                }, 0, 0, Bitmap.Config.RGB_565
-                        , new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        viewHolder.mActivityImage.setImageResource(R.drawable.campus_playing_app_icon);
-                    }
-                });
-                mQueue.add(activityImageRequest);
-            }
+            BitmapLoaderUtil.getInstance().getImage(viewHolder.mActivityImage, BitmapLoaderUtil.TYPE_MEDIAN, mActivitys.get(position).getImageId());
+            viewHolder.mActivityShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ShareUtil.showShare(mActivity, mActivitys.get(position).getId(),mActivitys.get(position).getTitle());
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,8 +128,8 @@ public class ActivityListAdapter extends BaseAdapter {
      *
      * @param json
      */
-    public void addActivityListItem(JSONObject json) {
-        mActivityJsons.add(json);
+    public void addActivityListItem(com.android.model.Activity json) {
+        mActivitys.add(json);
     }
 
     /**
@@ -196,9 +137,10 @@ public class ActivityListAdapter extends BaseAdapter {
      *
      * @param json
      */
-    public void addHeaderActivityListItem(JSONObject json) {
-        mActivityJsons.add(0, json);
+    public void addHeaderActivityListItem(com.android.model.Activity json) {
+        mActivitys.add(0, json);
     }
+
 
 
     static class ViewHolder {
@@ -229,4 +171,6 @@ public class ActivityListAdapter extends BaseAdapter {
             ButterKnife.bind(this, view);
         }
     }
+
 }
+

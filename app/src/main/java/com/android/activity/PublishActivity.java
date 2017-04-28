@@ -1,6 +1,5 @@
 package com.android.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,83 +16,76 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.guide.BaseActivity;
-import com.android.guide.GlobalApplication;
 import com.android.lbs.SetLocationActivity;
 import com.android.tool.AddTagDialog;
 import com.android.tool.AskSavePopMenu;
 import com.android.tool.BottomPopSelectMenu;
 import com.android.tool.DataUtils;
 import com.android.tool.FlowLayout;
-import com.android.tool.GetPhotoFrmAlbum;
-import com.android.tool.GetPhotoFrmCamera;
-import com.android.tool.ImageUtils;
-import com.android.tool.MultipartEntity;
-import com.android.tool.MultipartRequest;
+import com.android.tool.PhotoFrmAlbum;
+import com.android.tool.PhotoFrmCamera;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.ProgressHUD;
 import com.android.tool.SelectActivityTag;
 import com.android.tool.SelectDateAndTime;
+import com.android.tool.UploadImageUtil;
 import com.android.tool.VolleyRequestParams;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONObject;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.android.R.id.post;
-
 
 public class PublishActivity extends BaseActivity {
-    public static final int TAKE_PHOTO = 0; //拍照获取照片
-    public static final int CHOOSE_PHOTO = 1;  //从相册选取照片
-    public static final int SET_ADDRESS = 2;  //设置位置
-
+    private static final int GET_PHOTO_FRM_CAMERA = 0; //拍照获取照片
+    private static final int CUT_PHOTO_FRM_CAMERA = 1;  //从相册选取照片
+    private static final int GET_PHOTO_FRM_ALBUM = 2;
+    private static final int CUT_PHOTO_FRM_ALBUM = 3;
+    public static final int SET_ADDRESS = 4;  //设置位置
     @BindView(R.id.cancel)
     TextView mCancel;
-    @BindView(post)
+    @BindView(R.id.page_title)
+    TextView mPageTitle;
+    @BindView(R.id.post)
     TextView mPost;
     @BindView(R.id.activity_title)
     EditText mActivityTitle;
     @BindView(R.id.activity_content)
     EditText mActivityContent;
+    @BindView(R.id.picture_set)
+    TextView mPictureSet;
     @BindView(R.id.upload_picture)
     ImageView mUploadPicture;
+    @BindView(R.id.ll_activity_time)
+    LinearLayout mLlActivityTime;
     @BindView(R.id.start_time_set)
     TextView mStartTimeSet;
     @BindView(R.id.end_time_set)
     TextView mEndTimeSet;
-    @BindView(R.id.ll_activity_time)
-    LinearLayout mLlActivityTime;
     @BindView(R.id.address_set)
     TextView mAddressSet;
     @BindView(R.id.ll_to_map)
     LinearLayout mLlToMap;
     @BindView(R.id.activity_fee_set)
     EditText mActivityFeeSet;
-    @BindView(R.id.activity_tag)
-    FlowLayout mActivityTag;
-
-    @BindView(R.id.rootview)
-    LinearLayout mRootview;
-    @BindView(R.id.set_tag)
-    TextView mSetTag;
     @BindView(R.id.activity_type_set)
     TextView mActivityTypeSet;
-    @BindView(R.id.page_title)
-    TextView mPageTitle;
-    @BindView(R.id.picture_set)
-    TextView mPictureSet;
+    @BindView(R.id.set_tag)
+    TextView mSetTag;
+    @BindView(R.id.activity_tag)
+    FlowLayout mActivityTag;
+    @BindView(R.id.rootview)
+    LinearLayout mRootview;
 
     private BottomPopSelectMenu bottomPopMenu;
     private AskSavePopMenu popAskSaveMenu;
@@ -116,12 +108,17 @@ public class PublishActivity extends BaseActivity {
     private long startTimeStamp;
     private long endTimeStamp;
 
+    private PhotoFrmAlbum mPhotoFrmAlbum;
+    private PhotoFrmCamera mPhotoFrmCamera;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publish);
         ButterKnife.bind(this);
 
+        mPhotoFrmAlbum = new PhotoFrmAlbum(this, GET_PHOTO_FRM_ALBUM, CUT_PHOTO_FRM_ALBUM);
+        mPhotoFrmCamera = new PhotoFrmCamera(this, GET_PHOTO_FRM_CAMERA, CUT_PHOTO_FRM_CAMERA);
         activityTag = new ArrayList<>();
         rootString = getResources().getString(R.string.ROOT) + "user/~me/activity";
         networkStatus = new NetworkConnectStatus(this);
@@ -223,7 +220,8 @@ public class PublishActivity extends BaseActivity {
         mCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!hasContent()) {  //没有填写任何内容
+                finish();//直接退出活动
+            /*    if (!hasContent()) {  //没有填写任何内容
                     finish();//直接退出活动
                 }
                 popAskSaveMenu = new AskSavePopMenu(PublishActivity.this, new View.OnClickListener() {
@@ -240,7 +238,7 @@ public class PublishActivity extends BaseActivity {
                         }
                     }
                 });
-                popAskSaveMenu.show();
+                popAskSaveMenu.show();*/
                 //
                 //这里应该在finish之前弹出一个保存对话框
             }
@@ -263,14 +261,16 @@ public class PublishActivity extends BaseActivity {
                     public void onClick(View v) {
                         switch (v.getId()) {
                             case R.id.pop_select_fr_phone:
-                                Toast.makeText(PublishActivity.this, "从手机中选择图片", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(RegisterActivity.this, "从手机中选择图片", Toast.LENGTH_SHORT).show();
+                                mPhotoFrmAlbum.choosePhotoFrmAlbum();
                                 //openAlbum();//从相册中获取图片
-                                GetPhotoFrmAlbum.openAlbum(PublishActivity.this, CHOOSE_PHOTO);
+                                //GetPhotoFrmAlbum.openAlbum(RegisterActivity.this,CHOOSE_PHOTO);
                                 break;
                             case R.id.pop_take_photo:
-                                Toast.makeText(PublishActivity.this, "拍照获取图片", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(RegisterActivity.this, "拍照获取图片", Toast.LENGTH_SHORT).show();
                                 // openCamera(); //拍照获取图片
-                                GetPhotoFrmCamera.openCamera(PublishActivity.this, TAKE_PHOTO);
+                                //GetPhotoFrmCamera.openCamera(RegisterActivity.this,TAKE_PHOTO);
+                                mPhotoFrmCamera.getPhotoFrmCamera();
                                 break;
                         }
                     }
@@ -371,118 +371,64 @@ public class PublishActivity extends BaseActivity {
             return;
         }
         if (networkStatus.isConnectInternet()) {
-            mProgressHUD = ProgressHUD.show(PublishActivity.this, "发布中...", true, true, new DialogInterface.OnCancelListener() {
+            new UploadImageUtil(PublishActivity.this, upLoadPicture, new UploadImageUtil.CallBackWithMediaId(){
                 @Override
-                public void onCancel(DialogInterface dialog) {
-                    mProgressHUD.dismiss();
-                }
-            });
-            File file = new File(getExternalCacheDir(), "my_upload_Picture.jpg");//将要保存图片的路径
-            ImageUtils.bitmapToFile(file, upLoadPicture);
+                public void handlerWithMediaId(int mediaId) {
+                    VolleyRequestParams bodyParams = new VolleyRequestParams()
+                            .with("title", mActivityTitle.getText().toString())
+                            .with("image", String.valueOf(mediaId))//头像的id
+                            .with("beginTime", String.valueOf(startTimeStamp))
+                            .with("endTime", String.valueOf(endTimeStamp))
+                            .with("address", address)
+                            .with("latitude", String.valueOf(latitude))
+                            .with("longitude", String.valueOf(longitude))
+                            .with("fee", mActivityFeeSet.getText().toString())
+                            .with("category", String.valueOf(activityType))
+                            // .with("tags", String.valueOf(gender))
+                            .with("content", mActivityContent.getText().toString());
 
-            mQueue = GlobalApplication.get().getRequestQueue();
-            MultipartRequest multipartRequest = new MultipartRequest(
-                    getResources().getString(R.string.ROOT) + "media", new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.d("PublishActivity:TAG", " response : " + response);
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        int mediaId = jsonObject.getInt("media_id");
-
-                        //Base64.encode()
-                        VolleyRequestParams bodyParams = new VolleyRequestParams()
-                                .with("title", mActivityTitle.getText().toString())
-                                .with("image", String.valueOf(mediaId))//头像的id
-                                .with("beginTime", String.valueOf(startTimeStamp))
-                                .with("endTime", String.valueOf(endTimeStamp))
-                                .with("address", address)
-                                .with("latitude", String.valueOf(latitude))
-                                .with("longitude", String.valueOf(longitude))
-                                .with("fee", mActivityFeeSet.getText().toString())
-                                .with("category", String.valueOf(activityType))
-                               // .with("tags", String.valueOf(gender))
-                                .with("content", mActivityContent.getText().toString());
-/*                        VolleyRequestParams bodyParams = new VolleyRequestParams()
-                                .with("title", URLEncoder.encode(mActivityTitle.getText().toString(), "UTF-8"))
-                                .with("image", String.valueOf(mediaId))//头像的id
-                                .with("beginTime", String.valueOf(startTimeStamp))
-                                .with("endTime", String.valueOf(endTimeStamp))
-                                .with("address", URLEncoder.encode(address, "UTF-8"))
-                                .with("latitude", String.valueOf(latitude))
-                                .with("longitude", String.valueOf(longitude))
-                                .with("fee", mActivityFeeSet.getText().toString())
-                                .with("category", String.valueOf(activityType))
-                                // .with("tags", String.valueOf(gender))
-                                .with("content", URLEncoder.encode(mActivityContent.getText().toString(), "UTF-8"));*/
-
-                        if (0 != activityTag.size()) {   //添加活动tag，无则不添加
-                            StringBuilder sb = new StringBuilder();
-                            for (int i = 0; i < activityTag.size(); i++) {
-                                if (0 == i) {
-                                    sb.append(activityTag.get(i));
-                                } else {
-                                    sb.append("&" + activityTag.get(i));
-                                }
+                    if (0 != activityTag.size()) {   //添加活动tag，无则不添加
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < activityTag.size(); i++) {
+                            if (0 == i) {
+                                sb.append(activityTag.get(i));
+                            } else {
+                                sb.append("&" + activityTag.get(i));
                             }
-                            bodyParams.with("tags", sb.toString());
-                           // bodyParams.with("tags", URLEncoder.encode(sb.toString(), "UTF-8"));
                         }
-
-                        VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
-                                .with("token", GlobalApplication.getToken())
-                                .with("Accept", "application/json"); // 数据格式设置为json
-                        mStringRequest = new MyStringRequest(Request.Method.POST, rootString, headerParams, bodyParams,
-                                new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        if ("null".equals(response) || null == response) {
-                                            //登录未获取响应，登录失败
-                                            mProgressHUD.dismiss();
-                                            Toast.makeText(PublishActivity.this, "发布失败".toString(), Toast.LENGTH_SHORT).show();
-
-                                            return;
-                                        }
-                                        try {
-                                            Log.d("PublishActivity:TAG", response);
-                                            mProgressHUD.dismiss();
-
-                                            JSONObject jsObject = new JSONObject(response);
-
-                                            Toast.makeText(PublishActivity.this, "发布完成".toString(), Toast.LENGTH_SHORT).show();
-
-                                            PublishActivity.this.finish();
-
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                           /* Log.e("PublishActivity:TAG", error.getMessage(), error);
-                                            byte[] htmlBodyBytes = error.networkResponse.data;
-                                            Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);*/
-                                        }
-                                    }
-                                }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                mProgressHUD.dismiss();
-                                Log.e("PublishActivity:TAG", error.getMessage(), error);
-                                byte[] htmlBodyBytes = error.networkResponse.data;
-                                Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);
-                                Toast.makeText(PublishActivity.this, "网络超时".toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        executeRequest(mStringRequest);
-                    } catch (Exception e) {
-                        mProgressHUD.dismiss();
-                        Toast.makeText(PublishActivity.this, "失败".toString(), Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
+                        bodyParams.with("tags", sb.toString());
+                        // bodyParams.with("tags", URLEncoder.encode(sb.toString(), "UTF-8"));
                     }
+
+                    VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
+                            .with("token", GlobalApplication.getToken())
+                            .with("Accept", "application/json"); // 数据格式设置为json
+                    mStringRequest = new MyStringRequest(Request.Method.POST, rootString, headerParams, bodyParams,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        Log.d("PublishActivity:TAG", response);
+                                        Toast.makeText(PublishActivity.this, "发布完成,等待审核".toString(), Toast.LENGTH_SHORT).show();
+                                        PublishActivity.this.finish();
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("PublishActivity:TAG", error.getMessage(), error);
+                            byte[] htmlBodyBytes = error.networkResponse.data;
+                            Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);
+                            Toast.makeText(PublishActivity.this, "网络超时".toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    executeRequest(mStringRequest);
                 }
-            });
-            multipartRequest.addHeader("Accept", "application/json");
-            // 通过MultipartEntity来设置参数
-            MultipartEntity multi = multipartRequest.getMultiPartEntity();
-            multi.addFilePart("file", file);
-            mQueue.add(multipartRequest);
+            }).upLoadImage();
+
         } else {
             Toast.makeText(PublishActivity.this, getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
         }
@@ -500,7 +446,7 @@ public class PublishActivity extends BaseActivity {
         switch (requestCode) {
             case 1:       //打开相册会有权限的申请
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    GetPhotoFrmAlbum.openAlbumForResult(PublishActivity.this, CHOOSE_PHOTO);
+                  //  GetPhotoFrmAlbum.openAlbumForResult(PublishActivity.this, CHOOSE_PHOTO);
                 } else {
                     Toast.makeText(this, "You denied the permission that opening album", Toast.LENGTH_SHORT).show();
                 }
@@ -513,26 +459,6 @@ public class PublishActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case TAKE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    isUploadPhoto = true;
-                    upLoadPicture = ImageUtils.comp(GetPhotoFrmCamera.getPhoto(PublishActivity.this),400,800,480);//对获取的图片进行压缩
-                    mUploadPicture.setImageBitmap(upLoadPicture);
-                    //  addPicture(GetPhotoFrmCamera.getPhoto(PublishActivity.this));
-                } else {
-                    Toast.makeText(this, "你没有拍照", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    isUploadPhoto = true;
-                    upLoadPicture = ImageUtils.comp(GetPhotoFrmAlbum.getPhoto(PublishActivity.this, data),400,800,480);//对获取的图片进行压缩
-                    mUploadPicture.setImageBitmap(upLoadPicture);
-                    //  addPicture(GetPhotoFrmAlbum.getPhoto(PublishActivity.this, data));
-                } else {
-                    Toast.makeText(this, "你没有选择任何照片", Toast.LENGTH_SHORT).show();
-                }
-                break;
             case SET_ADDRESS:
                 if (resultCode == RESULT_OK) {
                     latitude = Double.valueOf(data.getStringExtra("latitude"));//纬度
@@ -547,6 +473,34 @@ public class PublishActivity extends BaseActivity {
                     // addPicture(GetPhotoFrmAlbum.getPhoto(PublishActivity.this, data));
                 } else {
                     Toast.makeText(this, "未重新设置地点", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case GET_PHOTO_FRM_CAMERA:
+                if(resultCode == RESULT_OK) {
+                    mPhotoFrmCamera.cutImage(1280, 960);
+                } else {
+                    Toast.makeText(this, "你没有拍照", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case CUT_PHOTO_FRM_CAMERA:
+                if (resultCode == RESULT_OK) {
+                    isUploadPhoto = true;
+                    upLoadPicture = mPhotoFrmCamera.getCutImage();//对获取的图片进行压缩
+                    mUploadPicture.setImageBitmap(upLoadPicture);
+                }
+                break;
+            case GET_PHOTO_FRM_ALBUM:
+                if (resultCode == RESULT_OK) {
+                    mPhotoFrmAlbum.cutImage(data, 1280, 960);//裁剪照片,大小为150*150
+                } else {
+                    Toast.makeText(this, "你没有选择照片", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case CUT_PHOTO_FRM_ALBUM:
+                if (resultCode == RESULT_OK) {
+                    isUploadPhoto = true;
+                    upLoadPicture = mPhotoFrmAlbum.getCutImage();//对获取的图片进行压缩
+                    mUploadPicture.setImageBitmap(upLoadPicture);
                 }
                 break;
             default:
