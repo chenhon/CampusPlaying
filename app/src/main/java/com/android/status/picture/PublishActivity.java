@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.android.GlobalApplication;
 import com.android.R;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.tool.BottomPopSelectMenu;
 import com.android.tool.ImageUtils;
 import com.android.tool.MultipartEntity;

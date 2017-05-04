@@ -61,8 +61,8 @@ import static android.content.ContentValues.TAG;
  * 推荐页面
  */
 public class RecommendFragment extends Fragment {
-    private static final int LOAD_DATA_COUNT = 4;//每页加载10条数据
-    private static final int LOAD_USER_COUNT = 3;//每页加载用户数
+    private static final int LOAD_DATA_COUNT = 6;//每页加载10条数据
+    private static final int LOAD_USER_COUNT = 6;//每页加载用户数
     private static final int HOT_NUM = 4;//呈现的推广活动数
     @BindView(R.id.iv_search)
     ImageView mIvSearch;
@@ -181,7 +181,7 @@ public class RecommendFragment extends Fragment {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Log.d("getACTIVITY:TAG", response);
+                            Log.d("getUser:TAG", response);
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 recommentUserTotal = jsonObject.getInt("total");//总条数
@@ -237,8 +237,8 @@ public class RecommendFragment extends Fragment {
     private void getActivityListData() {
         if ((recommentTotal != 0) && (loadPage * LOAD_DATA_COUNT >= recommentTotal)) {
             Toast.makeText(getActivity(), "推荐活动已加载完".toString(), Toast.LENGTH_SHORT).show();
-            mSwipyrefreshlayout.setRefreshing(false);
-            return;
+      /*      mSwipyrefreshlayout.setRefreshing(false);
+            return;*/
         }
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
@@ -267,7 +267,7 @@ public class RecommendFragment extends Fragment {
                                 }
                                 for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
                                     JSONObject jo = jsonArr.getJSONObject(i);
-                                    Log.d("getACTIVITY333:TAG", jo.toString());
+                                    Log.d("getACTIVITY:TAG", jo.toString());
                                     //适配器中添加数据项
                                     Activity activity = new Activity();
                                     activity.setId(jo.getInt("id"));
@@ -277,7 +277,7 @@ public class RecommendFragment extends Fragment {
                                     activity.setTitle(jo.getString("title"));
                                     activity.setContent(jo.getString("content"));
                                     activity.setImageId(jo.getInt("image"));
-                                    activity.setTime(jo.getInt("created_at"));
+                                    activity.setTime(jo.getLong("created_at"));
                                     activity.setWisherCount(jo.getInt("wisher_count"));
                                     activity.setParticipantCount(jo.getInt("participant_count"));
                                     activity.setVerifyStatus(jo.getInt("verify_state"));
@@ -476,9 +476,7 @@ public class RecommendFragment extends Fragment {
         mIvSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //跳转到搜索界面
-                //跳转到搜索界面
-                Toast.makeText(getContext(), "跳转到搜索界面!", Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(getContext(), "跳转到搜索界面!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), SearchActivity.class);
                 // Intent intent = new Intent(SplashActivity.this, SearchActivity.class);
                 getActivity().startActivity(intent);
@@ -510,8 +508,14 @@ public class RecommendFragment extends Fragment {
             public void onRefresh(SwipyRefreshLayoutDirection direction) {
                 if (direction == SwipyRefreshLayoutDirection.BOTTOM) {
                     getActivityListData();
-                } else {
+                } else {  //下拉刷新
                     getHotActivityData();
+                    getUserListData();
+
+                    loadPage = 0;
+                    recommentTotal = 0;
+                    activityAdapter.clearListData();
+                    getActivityListData();
                 }
 //                Toast.makeText(getContext(),
 //                        "Refresh triggered at "

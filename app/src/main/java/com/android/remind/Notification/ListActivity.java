@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.NotificationListAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.model.Notification;
 import com.android.tool.MyStringRequest;
@@ -22,6 +22,7 @@ import com.android.tool.NetworkConnectStatus;
 import com.android.tool.RequestManager;
 import com.android.tool.VolleyRequestParams;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -30,6 +31,7 @@ import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
@@ -107,7 +109,13 @@ public class ListActivity extends BaseActivity {
         notificationAdapter = new NotificationListAdapter(this);
         mLvNotification.setAdapter(notificationAdapter);
         setListener();
-        getNotificationListData();
+      //  getNotificationListData();
+    }
+
+    @Override
+    protected void onResume() {    //切换回来后，列表要进行刷新
+        super.onResume();
+        refreshData();
     }
 
     /**
@@ -138,6 +146,7 @@ public class ListActivity extends BaseActivity {
                                     mTvEmptyview.setVisibility(View.VISIBLE);
                                     return;
                                 }
+                                mTvEmptyview.setVisibility(View.GONE);
                                 JSONArray jsonArr = jsonObject.getJSONArray("notifications");
                                 Log.d("getNOTIFICATION:TAG", String.valueOf(jsonArr.length()));
                                 for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
@@ -152,16 +161,15 @@ public class ListActivity extends BaseActivity {
                                     noti.setContent(jo.getString("content"));//通知内容
                                     notificationAdapter.addNotificationListItem(noti);
                                 }
+                                notificationAdapter.notifyDataSetChanged();
                                 if (jsonArr.length() > 0) {
                                     loadPage++;
-                                    notificationAdapter.notifyDataSetChanged();
                                     Log.d("getNOTIFICATION:TAG", "通知更新");
                                 }
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 Log.d("getNOTIFICATION:TAG", "出错");
-                                Log.d("getNOTIFICATION:TAG", e.toString());
                             }
                         }
                     },
@@ -169,8 +177,19 @@ public class ListActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             mSwipyrefreshlayout.setRefreshing(false);
-                            Log.d("getNOTIFICATION:TAG", "出错");
-                            Log.d("getNOTIFICATION:TAG", error.getMessage(), error);
+                            NetworkResponse response = error.networkResponse;
+                            if(response != null){
+                                String responseStr = new String(response.data);
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(responseStr);
+                                    Integer errorCode = jsonObject.getInt("code");
+                                    String errorMsg = jsonObject.getString("msg");
+                                    Log.d("getNOTIFICATION:TAG", errorCode + ": " + errorMsg);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     });
             mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
@@ -188,6 +207,8 @@ public class ListActivity extends BaseActivity {
             public void onRefresh(SwipyRefreshLayoutDirection direction) {
                 if (direction == SwipyRefreshLayoutDirection.BOTTOM) {
                     getNotificationListData();
+                } else if(direction == SwipyRefreshLayoutDirection.TOP){
+                    refreshData();
                 }
 //                Toast.makeText(getContext(),
 //                        "Refresh triggered at "
@@ -224,6 +245,15 @@ public class ListActivity extends BaseActivity {
                 ListActivity.this.startActivity(intent);
             }
         });
+    }
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        notificationAdapter.clearListData();//清楚数据
+        loadPage = 0;
+        notificationTotal = 0;
+        getNotificationListData();
     }
 
 

@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import com.android.model.User;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.baidu.mapapi.SDKInitializer;
 
 /**
  * Created by Administrator on 2017/3/7 0007.
@@ -36,7 +35,7 @@ public class GlobalApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        SDKInitializer.initialize(getApplicationContext());//百度地图SDK初始化
+      //  SDKInitializer.initialize(getApplicationContext());//百度地图SDK初始化
         instance = this;
         sharedPreferences = getSharedPreferences(GLOBAL_PREFS_NAME, Context.MODE_PRIVATE);
         if( this.requestQueue == null) {

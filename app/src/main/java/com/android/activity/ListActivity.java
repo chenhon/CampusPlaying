@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.ActivityListAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
@@ -93,7 +93,7 @@ public class ListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         ButterKnife.bind(this);
-
+        setResult(RESULT_OK);
         mQueue = GlobalApplication.get().getRequestQueue();
 
         networkStatus = new NetworkConnectStatus(this);
@@ -143,10 +143,14 @@ public class ListActivity extends BaseActivity {
         }
 
         initListView();
-        getListData();
+      //  getListData();
         setListener();
     }
-
+    @Override
+    protected void onResume() {    //切换回来后，列表要进行刷新
+        super.onResume();
+        refreshData();
+    }
     /**
      * 初始化列表的listView
      */
@@ -180,7 +184,6 @@ public class ListActivity extends BaseActivity {
         mBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);
                 finish();
             }
         });
@@ -189,7 +192,7 @@ public class ListActivity extends BaseActivity {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-
+                refreshData();
             }
             //上拉加载更多
             @Override
@@ -205,8 +208,8 @@ public class ListActivity extends BaseActivity {
     private void getListData() {
         if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
             Toast.makeText(this, "活动列表已加载完！", Toast.LENGTH_SHORT).show();
-            mActivityPullListView.onRefreshComplete();
-            return;
+            //mActivityPullListView.onRefreshComplete();
+            //return;
         }
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
@@ -228,8 +231,8 @@ public class ListActivity extends BaseActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("getACTIVITY:TAG", "出错");
-                            Log.d("getACTIVITY:TAG", error.getMessage(),error);
+                            /*Log.d("getACTIVITY:TAG", "出错");
+                            Log.d("getACTIVITY:TAG", error.getMessage(),error);*/
                             mActivityPullListView.onRefreshComplete();
                         }
                     });
@@ -268,16 +271,16 @@ public class ListActivity extends BaseActivity {
                 activity.setTitle(jo.getString("title"));
                 activity.setContent(jo.getString("content"));
                 activity.setImageId(jo.getInt("image"));
-                activity.setTime(jo.getInt("created_at"));
+                activity.setTime(jo.getLong("created_at"));
                 activity.setWisherCount(jo.getInt("wisher_count"));
                 activity.setParticipantCount(jo.getInt("participant_count"));
                 activity.setVerifyStatus(jo.getInt("verify_state"));
                 activity.setState(jo.getInt("state"));
                 activityAdapter.addActivityListItem(activity);
             }
+            activityAdapter.notifyDataSetChanged();
             if(jsonArr.length() > 0) {
                 loadPage++;
-                activityAdapter.notifyDataSetChanged();
             }
             if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
                 Toast.makeText(this, "活动列表已加载完！", Toast.LENGTH_SHORT).show();
@@ -319,5 +322,15 @@ public class ListActivity extends BaseActivity {
             getListData();
             super.onPostExecute(result);
         }
+    }
+
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        activityAdapter.clearListData();//清楚数据
+        loadPage = 0;
+        listTotal = 0;
+        getListData();
     }
 }

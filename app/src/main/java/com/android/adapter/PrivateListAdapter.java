@@ -75,9 +75,12 @@ public class PrivateListAdapter extends BaseAdapter {
         int noReadCnt = mPrivates.get(position).getNoReadCount();  //未读消息条数
         if(0 == noReadCnt) {
             viewHolder.noReadNum.setVisibility(View.GONE);
-        } else {
+        } else if(noReadCnt <= 99){
             viewHolder.noReadNum.setVisibility(View.VISIBLE);
             viewHolder.noReadNum.setText(String.valueOf(noReadCnt));//有未读消息
+        } else {
+            viewHolder.noReadNum.setVisibility(View.VISIBLE);
+            viewHolder.noReadNum.setText("99+");//有未读消息
         }
         BitmapLoaderUtil.getInstance().getImage(viewHolder.userAvatar,BitmapLoaderUtil.TYPE_ORIGINAL,mPrivates.get(position).getAvatarId());
 

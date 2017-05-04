@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,12 +18,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.activity.DetailActivity;
 import com.android.adapter.ActivityListAdapter;
 import com.android.adapter.PersonListAdapter;
-import com.android.guide.BaseActivity;
-import com.android.GlobalApplication;
+import com.android.BaseActivity;
 import com.android.model.Activity;
 import com.android.person.PersonOnClickListenerImpl;
 import com.android.tool.FlowLayout;
@@ -46,8 +48,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class SearchActivity extends BaseActivity {
-    private static final int LOAD_DATA_COUNT = 3;//每页加载10条数据
-    private static final int LOAD_USER_COUNT = 5;//每页加载10条数据
+    private static final int LOAD_DATA_COUNT = 5;//每页加载10条数据
+    private static final int LOAD_USER_COUNT = 1;//每页加载10条数据
     private static int SEARCH_ACTIVITY = 0;
     private static int SEARCH_USER = 1;
     private static int ORDER_TIME = 0;
@@ -122,6 +124,7 @@ public class SearchActivity extends BaseActivity {
         mListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         mListView.setDivider(null);
         activityAdapter = new ActivityListAdapter(this);
+        mListView.setAdapter(activityAdapter);//默认搜索活动
         followAdapter = new PersonListAdapter(this);
     }
 
@@ -133,52 +136,32 @@ public class SearchActivity extends BaseActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(isLoadActivity){
+                if(searchType == SEARCH_ACTIVITY){ //跳转到活动详情页
                     Bundle bundle = new Bundle();
-
                     bundle.putInt("aid", activityAdapter.getAid(position-1)); //活动id
                     bundle.putInt("creatorId", activityAdapter.getUid(position-1)); //发布活动着id
                     Intent intent = new Intent(SearchActivity.this, DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtras(bundle);  //传入详细信息
                     SearchActivity.this.startActivity(intent);
-                } else if(isLoadUser) {//跳转到用户详情界面
+                } else if(searchType == SEARCH_USER) {//跳转到用户详情界面
                     new PersonOnClickListenerImpl(SearchActivity.this, followAdapter.getId(position-1)).onClick(view);
                 }
             }
         });
+        //选择搜索类型
         mSpinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                searchType = pos;//记录搜索类型
-                loadPage = 0;
-                listTotal = 0;
-                lastKeyWord = "";
-                mEtSearchInput.setText(""); //清空输入框
-                if (isLoadUser) {
-                    followAdapter.clearAllItem();
-                    followAdapter.notifyDataSetChanged();
-                    isLoadUser = false;
+                if(pos == SEARCH_ACTIVITY) {
+                    initActivityView();
+                } else if(pos == SEARCH_USER) {
+                    initUserView();
                 }
-                if (isLoadActivity) {
-                    activityAdapter.clearAllItem();
-                    activityAdapter.notifyDataSetChanged();
-                    isLoadActivity = false;
+                String str = mEtSearchInput.getText().toString();
+                if((str != null)||(str.length() > 0)) {
+                    doSearch();     //修改 2017-05-03
                 }
-                if (SEARCH_ACTIVITY == searchType) {
-                    activityType = 0; //0表示全部
-                    for (int i = 0; i < mActivityTag.getChildCount(); i++) {  //设置所有标签的颜色
-                        ((TextView) mActivityTag.getChildAt(i)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
-                    }
-                    activityOrder = ORDER_TIME;//默认活动按时间排序
-                    mLlActivityTag.setVisibility(View.VISIBLE);
-                    mLlOrder.setVisibility(View.GONE);
-                } else if (SEARCH_USER == searchType) { //只有从活动跳到用户是会调用
-                    mLlActivityTag.setVisibility(View.GONE);//隐藏tag
-                    mLlOrder.setVisibility(View.GONE);
-                }
-              //  Toast.makeText(SearchActivity.this, "你点击的是:" + mItems[pos], Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -193,12 +176,20 @@ public class SearchActivity extends BaseActivity {
             mActivityTag.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(activityType != 0) {
+                    if(activityType != 0) {    //恢复上一个标签
                         ((TextView) mActivityTag.getChildAt(activityType-1)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
                     }
-                    ((TextView) mActivityTag.getChildAt(position)).setBackgroundColor(Color.RED);
-                    activityType = position + 1;//记录选中标签的位置，没有选择标签则默认是0
-                    //Toast.makeText(SearchActivity.this, "你点击的类型是:" + activityType, Toast.LENGTH_SHORT).show();
+                    if(activityType != position + 1) { //点的不是同一个标签，则切换标签
+                        ((TextView) mActivityTag.getChildAt(position)).setBackgroundColor(Color.RED);
+                        activityType = position + 1;//记录选中标签的位置，没有选择标签则默认是0
+                        if((lastKeyWord != null) && (lastKeyWord.length() != 0)) {
+                            lastKeyWord = "";   //重新执行搜索
+                            doSearch();
+                        }
+                    } else {      //点的是同一个标签，则消除选中状态
+                        activityType = 0;
+                        doSearch();     //修改 2017-05-03
+                    }
                 }
             });
         }
@@ -215,44 +206,45 @@ public class SearchActivity extends BaseActivity {
                 doSearch();
             }
         });
-        mLlOrderBytime.setOnClickListener(new View.OnClickListener() {//能够点击说明已经加载到活动数据了
+        mEtSearchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch();//软键盘的搜索
+                    return true;
+                }
+                return false;
+            }
+        });
+        mLlOrderBytime.setOnClickListener(new View.OnClickListener() { //排序选择
             @Override
             public void onClick(View v) {
-                if(ORDER_TIME == activityOrder) { //重复点击
+                if(activityOrder == ORDER_TIME) { //重复点击
                     return;
                 }
                 mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_selected));
                 mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));
                 activityOrder = ORDER_TIME;
-
-                activityAdapter.clearAllItem();
-                activityAdapter.notifyDataSetChanged();
-                loadPage = 0;
-                listTotal = 0;
-                isLoadActivity = false;
-                mEtSearchInput.setText(lastKeyWord);
-                mEtSearchInput.setSelection(lastKeyWord.length());
-                searchActivity(lastKeyWord);
+                if((lastKeyWord != null) && (lastKeyWord.length() != 0)) {
+                    lastKeyWord = "";   //重新执行搜索
+                    doSearch();
+                }
             }
         });
         mLlOrderByhot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ORDER_HOT == activityOrder) { //重复点击
+                if(activityOrder == ORDER_HOT) { //重复点击
                     return;
                 }
                 mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_unselected));
                 mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_selected));
                 activityOrder = ORDER_HOT;
-
-                activityAdapter.clearAllItem();
-                activityAdapter.notifyDataSetChanged();
-                loadPage = 0;
-                listTotal = 0;
-                isLoadActivity = false;
-                mEtSearchInput.setText(lastKeyWord);
-                mEtSearchInput.setSelection(lastKeyWord.length());
-                searchActivity(lastKeyWord);
+                if((lastKeyWord != null) && (lastKeyWord.length() != 0)) {
+                    lastKeyWord = "";   //重新执行搜索
+                    doSearch();
+                }
             }
         });
 
@@ -266,12 +258,17 @@ public class SearchActivity extends BaseActivity {
             //上拉加载更多
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-               // new ActivityListActivity.GetDataTask().execute();
-                if(isLoadActivity) {
+               // 搜索过用户
+                if((searchType == SEARCH_USER)&& (lastKeyWord != null) && (lastKeyWord.length() != 0)) {
+                    searchUser(lastKeyWord);//加载更多
+                } else if((searchType == SEARCH_ACTIVITY)&& (lastKeyWord != null) && (lastKeyWord.length() != 0)){
+                    searchActivity(lastKeyWord);
+                }
+               /* if(isLoadActivity) {
                     searchActivity(lastKeyWord);
                 } else if(isLoadUser) {
-                    searchUser();
-                }
+                    searchUser(lastKeyWord);
+                }*/
             }
         });
     }
@@ -291,34 +288,43 @@ public class SearchActivity extends BaseActivity {
             return ;
         }
         if (SEARCH_ACTIVITY == searchType) {
-            if (isLoadActivity) {
-                activityAdapter.clearAllItem();
-                activityAdapter.notifyDataSetChanged();
-                isLoadActivity = false;
-            }
-            mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_selected));
-            mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));
-            searchActivity(mEtSearchInput.getText().toString());
+            activityAdapter.clearAllItem();
+            loadPage = 0;
+            searchActivity(keyWord);
         } else if (SEARCH_USER == searchType) {
-            if (isLoadUser) {
-                followAdapter.clearAllItem();
-                followAdapter.notifyDataSetChanged();
-                isLoadUser = false;
-            }
-            if(activityType != 0) {   //tag之前按下的要消掉
-                ((TextView) mActivityTag.getChildAt(activityType-1)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
-            }
-            searchUser();
+            followAdapter.clearAllItem();//先清空列表
+            loadPage = 0;
+            searchUser(keyWord);
         }
     }
+/*********************************搜索用户相关***************************************/
+    /**
+     * 初始化用户搜索界面
+     */
+    private void initUserView() {
+        //视图设置
+       // mEtSearchInput.setText(""); //清空输入框
+        mLlActivityTag.setVisibility(View.GONE);//隐藏类型和排序
+        mLlOrder.setVisibility(View.GONE);
+        activityAdapter.clearAllItem();     //清空活动列表的数据
+        activityAdapter.notifyDataSetChanged();
+        mListView.setAdapter(followAdapter);//设置适配器
 
-    private void searchUser() {
-        mPullListView.setRefreshing(true);
+        //数据设置
+        loadPage = 0;
+        listTotal = 0;
+        isLoadActivity = false;
+        lastKeyWord = "";//上次该该类型搜索到的关键字
+        searchType = SEARCH_USER;//记录搜索类型
+    }
+
+    private void searchUser(String keyWord) {
+        //   mPullListView.setRefreshing(true);
         String parse;
         try {//jsonObject要和前面的类型一致,此处都是String
-            parse = URLEncoder.encode(mEtSearchInput.getText().toString(), "UTF-8");
+            parse = URLEncoder.encode(keyWord, "UTF-8");
         } catch (Exception je) {
-            parse = mEtSearchInput.getText().toString();
+            parse = keyWord;
         }
         rootString = getResources().getString(R.string.ROOT) + "search/user/"
                 + parse;//base64
@@ -338,7 +344,7 @@ public class SearchActivity extends BaseActivity {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Log.d("getACTIVITY:TAG", response);
+                            Log.d("getUSER:TAG", response);
                             parseUserJson(response); //将数据填入到List中去
                             mPullListView.onRefreshComplete();
                         }
@@ -347,10 +353,10 @@ public class SearchActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             mPullListView.onRefreshComplete();
-                            Toast.makeText(SearchActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
-                            Log.e("getTIMELINE:TAG", error.getMessage(), error);
+                            Toast.makeText(SearchActivity.this, "加载超时，请检查网络连接", Toast.LENGTH_SHORT).show();
+                            /*Log.e("getTIMELINE:TAG", error.getMessage(), error);
                             byte[] htmlBodyBytes = error.networkResponse.data;
-                            Log.e("getTIMELINE:TAG", new String(htmlBodyBytes), error);
+                            Log.e("getTIMELINE:TAG", new String(htmlBodyBytes), error);*/
                         }
                     });
 
@@ -370,29 +376,27 @@ public class SearchActivity extends BaseActivity {
     private void parseUserJson(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
-//            totalStatusCount =jsonObject.getInt("total");//总条数
-//            currentPage =jsonObject.getInt("page");//获取的当前页数
-//            startOrder = jsonObject.getInt("start") ; //当前页的起始序号
-//            pageCount = jsonObject.getInt("count") ; //当前页的起始序号
+            listTotal = jsonObject.getInt("total");//总条数
+            lastKeyWord = mEtSearchInput.getText().toString();//记录本次搜索的关键字
+
             JSONArray jsonArr = jsonObject.getJSONArray("results");
-
-            if (jsonArr.length() > 0) {
-                isLoadUser = true;
-                loadPage++;
-                lastKeyWord = mEtSearchInput.getText().toString();
-            } else {
-                Toast.makeText(this, "已加载完".toString(), Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
                 //适配器中添加数据项
                 followAdapter.addFollowListItem(jsonArr.getJSONObject(i));
             }
-            mListView.setAdapter(followAdapter);//设置适配器
-            activityAdapter.notifyDataSetChanged();
-            //endOrder = startOrder + jsonArr.length();
-            //statusesAdapter = new StatusesListAdapter(getActivity()); //初始化adapter
+            followAdapter.notifyDataSetChanged();
+
+            if(listTotal == 0) {
+                Toast.makeText(this, "未找到相匹配的用户".toString(), Toast.LENGTH_SHORT).show();
+            }
+            if (jsonArr.length() > 0) {
+                //   isLoadUser = true;
+                loadPage++;
+
+            } else {
+                Toast.makeText(this, "搜索列表已加载完".toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -401,11 +405,39 @@ public class SearchActivity extends BaseActivity {
 
     }
 
+    /************************************搜索活动相关******************************************/
+
+    /**
+     * 初始化活动搜索界面
+     */
+    private void initActivityView() {
+        //视图设置
+     //   mEtSearchInput.setText(""); //清空输入框
+        mLlActivityTag.setVisibility(View.VISIBLE);//显示类型和排序
+        mLlOrder.setVisibility(View.VISIBLE);
+        mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_selected));
+        mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));
+        for (int i = 0; i < mActivityTag.getChildCount(); i++) {  //设置所有标签的颜色
+            ((TextView) mActivityTag.getChildAt(i)).setBackgroundColor(getResources().getColor(R.color.tag_unselected));
+        }
+        followAdapter.clearAllItem();    //清空用户列表数据
+        followAdapter.notifyDataSetChanged();
+        mListView.setAdapter(activityAdapter);//设置适配器
+
+        //数据设置
+        loadPage = 0;
+        listTotal = 0;
+        isLoadUser = false;
+        lastKeyWord = "";//上次该类型搜索到的关键字
+        searchType = SEARCH_ACTIVITY;//记录搜索类型为活动
+        activityOrder = ORDER_TIME;//默认活动按时间排序
+        activityType = 0; //0表示全部
+
+    }
+
+
     private void searchActivity(String keyword) {
-        // mPullListView.setVisibility(View.VISIBLE);
-        mLlActivityTag.setVisibility(View.GONE);   //tag隐藏
-        mLlOrder.setVisibility(View.GONE);     //排序隐藏
-        mPullListView.setRefreshing(true);
+
         String parse;
         try {//jsonObject要和前面的类型一致,此处都是String
             parse = URLEncoder.encode(keyword, "UTF-8");
@@ -440,9 +472,9 @@ public class SearchActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             mPullListView.onRefreshComplete();
-                            Log.e("getTIMELINE:TAG", error.getMessage(), error);
+                            /*Log.e("getTIMELINE:TAG", error.getMessage(), error);
                             byte[] htmlBodyBytes = error.networkResponse.data;
-                            Log.e("getTIMELINE:TAG", new String(htmlBodyBytes), error);
+                            Log.e("getTIMELINE:TAG", new String(htmlBodyBytes), error);*/
                         }
                     });
 
@@ -462,23 +494,9 @@ public class SearchActivity extends BaseActivity {
     private void parseActivityJson(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
-//            totalStatusCount =jsonObject.getInt("total");//总条数
-//            currentPage =jsonObject.getInt("page");//获取的当前页数
-//            startOrder = jsonObject.getInt("start") ; //当前页的起始序号
-//            pageCount = jsonObject.getInt("count") ; //当前页的起始序号
+            listTotal = jsonObject.getInt("total");//总条数
+            lastKeyWord = mEtSearchInput.getText().toString();//记录本次搜索的关键字
             JSONArray jsonArr = jsonObject.getJSONArray("results");
-
-            if (jsonArr.length() > 0) {
-                isLoadActivity = true;//记录加载到数据
-                loadPage++;
-                lastKeyWord = mEtSearchInput.getText().toString();//记录本次搜索关键字
-                mLlOrder.setVisibility(View.VISIBLE);//显示排序条
-/*                mTvOrderBytime.setTextColor(getResources().getColor(R.color.check_selected));
-                mTvOrderByhot.setTextColor(getResources().getColor(R.color.check_unselected));*/
-            } else {
-                Toast.makeText(this, "已加载完".toString(), Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
                 JSONObject jo = jsonArr.getJSONObject(i);
@@ -498,14 +516,17 @@ public class SearchActivity extends BaseActivity {
                 activity.setState(jo.getInt("state"));
                 activityAdapter.addActivityListItem(activity);
             }
-            mListView.setAdapter(activityAdapter);//设置适配器
             activityAdapter.notifyDataSetChanged();
-            //endOrder = startOrder + jsonArr.length();
-            //statusesAdapter = new StatusesListAdapter(getActivity()); //初始化adapter
+            if (jsonArr.length() > 0) {
+                loadPage++;
+            } else {
+                Toast.makeText(this, "活动已加载完".toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d("getFOLLOW:TAG", e.toString());
+            Log.d("getActivity:TAG", e.toString());
         }
 
     }

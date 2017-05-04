@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.SystemMsgListAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
@@ -73,6 +73,7 @@ public class SystemMessageActivity extends BaseActivity {
         rootString = getResources().getString(R.string.ROOT)
                 + "msg/private/-255";//系统消息的uid为-255
 
+        setResult(RESULT_OK);
         initListView();
         setListener();
         getListData();
@@ -113,8 +114,8 @@ public class SystemMessageActivity extends BaseActivity {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-                // new SystemMessageActivity.GetDataTask().execute();
-                mMsgPullListView.onRefreshComplete();
+                 new SystemMessageActivity.GetDataTask().execute();
+                //mMsgPullListView.onRefreshComplete();
             }
 
             //上拉加载更多
@@ -137,7 +138,12 @@ public class SystemMessageActivity extends BaseActivity {
      */
     private void getListData() {
 
-        mMsgPullListView.setRefreshing(true);
+       // mMsgPullListView.setRefreshing(true);
+        if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
+            //  mSwipyrefreshlayout.setRefreshing(false);
+            Toast.makeText(this, "系统消息已加载完", Toast.LENGTH_SHORT).show();
+            //  return;
+        }
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
                     .with("page", String.valueOf(loadPage + 1))    //加载第一页
@@ -149,7 +155,7 @@ public class SystemMessageActivity extends BaseActivity {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Log.d("getPHOTO:TAG", response);
+                            Log.d("getSystemMeg:TAG", response);
                             parseStatusJson(response); //将数据填入到List中去
                             mMsgPullListView.onRefreshComplete();
                         }
@@ -158,8 +164,8 @@ public class SystemMessageActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Toast.makeText(SystemMessageActivity.this, "网络繁忙，请稍后再试".toString(), Toast.LENGTH_SHORT).show();
-                            Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                            /*Log.d("getTIMELINE:TAG", "出错");
+                            Log.d("getTIMELINE:TAG", error.getMessage(), error);*/
                             mMsgPullListView.onRefreshComplete();
                         }
                     });
@@ -193,9 +199,9 @@ public class SystemMessageActivity extends BaseActivity {
             for (int i = 0; i < jsonArr.length(); i++) {
                 msgAdapter.addMagListItem(jsonArr.getJSONObject(i));
             }
+            msgAdapter.notifyDataSetChanged();
             if (jsonArr.length() > 0) {
                 loadPage++;
-                msgAdapter.notifyDataSetChanged();
             }
 
         } catch (Exception e) {
@@ -232,7 +238,7 @@ public class SystemMessageActivity extends BaseActivity {
         @Override
         protected String[] doInBackground(Void... params) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
             }
             return null;
@@ -247,6 +253,9 @@ public class SystemMessageActivity extends BaseActivity {
         protected void onPostExecute(String[] result) {
 
             //msgAddNewData();
+            listTotal = 0;//评论总数
+            loadPage = 0;
+            msgAdapter.clearListData();
             getListData();
             super.onPostExecute(result);
         }

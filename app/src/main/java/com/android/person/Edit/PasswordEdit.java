@@ -13,10 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.R;
-import com.android.guide.ActivityCollector;
-import com.android.guide.BaseActivity;
+import com.android.ActivityCollector;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
-import com.android.guide.MainActivity;
+import com.android.login.MainActivity;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.ProgressHUD;

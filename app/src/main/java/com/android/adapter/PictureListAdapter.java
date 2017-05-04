@@ -41,6 +41,9 @@ public class PictureListAdapter extends BaseAdapter {
         this.mObjs = new ArrayList<>();
         mQueue = GlobalApplication.get().getRequestQueue();
     }
+    public void clearListData() {
+        mObjs.clear();
+    }
 
     public int getPid(int position){
         int pid = 0;

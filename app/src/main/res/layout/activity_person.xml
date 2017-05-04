@@ -9,7 +9,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="#fff"
+        android:background="@color/title_color"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:layout_gravity="center_vertical">
@@ -63,8 +63,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="5dp"
             android:textColor="#444444"
-            android:textSize="16sp"
-            android:text="洪豆"/>
+            android:textSize="16sp"/>
         <LinearLayout
             android:layout_below="@+id/user_name"
             android:layout_width="wrap_content"
@@ -83,8 +82,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textSize="13sp"
-                android:text="个人描述"/>
+                android:textSize="13sp" />
         </LinearLayout>
         <Button
             android:id="@+id/add_attention_btn"
@@ -214,8 +212,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:textColor="#838383"
-            android:textSize="15sp"
+            android:textColor="#444444"
+            android:textSize="20sp"
             android:text="动态"/>
         <ImageView
             android:layout_width="wrap_content"
@@ -245,8 +243,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:textColor="#838383"
-            android:textSize="15sp"
+            android:textColor="#444444"
+            android:textSize="20sp"
             android:text="相册"/>
         <ImageView
             android:layout_width="wrap_content"
@@ -276,8 +274,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:textColor="#838383"
-            android:textSize="15sp"
+            android:textColor="#444444"
+            android:textSize="20sp"
             android:text="感兴趣的活动"/>
         <ImageView
             android:layout_width="wrap_content"
@@ -308,8 +306,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:textColor="#838383"
-            android:textSize="15sp"
+            android:textColor="#444444"
+            android:textSize="20sp"
             android:text="已发布的活动"/>
         <ImageView
             android:layout_width="wrap_content"

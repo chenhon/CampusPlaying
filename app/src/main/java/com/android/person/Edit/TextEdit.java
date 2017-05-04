@@ -72,7 +72,7 @@ public class TextEdit extends AppCompatActivity {
         setContentView(R.layout.activity_text_edit);
         ButterKnife.bind(this);
 
-
+        setResult(RESULT_OK);   //一定要放在finish前面
         Bundle bundle = this.getIntent().getExtras();
         mEditTitle = bundle.getString("title");
         mTitle.setText(mEditTitle);
@@ -140,7 +140,7 @@ public class TextEdit extends AppCompatActivity {
                                 JSONObject jsObject = new JSONObject(response);
                                 GlobalApplication.getMySelf().setDescription(jsObject.getString("description")); //记录修改后的个人签名和昵称
                                 GlobalApplication.getMySelf().setName(jsObject.getString("name"));
-                                setResult(RESULT_OK);
+                               // setResult(RESULT_OK);
                                 finish();   //修改成功
                                 overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                             } catch (Exception e) {

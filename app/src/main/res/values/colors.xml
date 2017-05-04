@@ -13,9 +13,20 @@
     <color name="login_saved">#5471f4</color>
     <color name="login_unsaved">#878787</color>
 
-    <color name="floating_button">#5bdfd9</color>
     <color name="tag_unselected">#7690A5</color>
 
+    <color name="floating_button">#00cc99</color>
+    <color name="bottom_navigation_color">#00cc99</color>
+    <color name="title_color">#00cc99</color>
 
     <color name="ccc">#33333333</color>
+
+    <color name="transparent">#00000000</color>
+
+    <color name="grey"> #ebebeb</color>
+    <color name="black"> #000000</color>
+    <color name="darkgrey"> #C0C0C0</color>
+    <color name="white"> #FFFFFF</color>
+    <color name="red"> #FF0000</color>
+    <color name="gary">#898989</color>
 </resources>

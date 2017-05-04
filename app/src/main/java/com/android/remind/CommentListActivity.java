@@ -56,6 +56,7 @@ public class CommentListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comment_list);
         ButterKnife.bind(this);
 
+        setResult(RESULT_OK);
         networkStatus = new NetworkConnectStatus(this);
         rootString = getResources().getString(R.string.ROOT)
                 + "msg/comment";//获取评论列表

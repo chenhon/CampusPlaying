@@ -31,6 +31,9 @@ public class SystemMsgListAdapter extends BaseAdapter {
         this.mActivity = activity;
         this.mMsgJsons = new ArrayList<>();
     }
+    public void clearListData() {
+        mMsgJsons.clear();
+    }
 
     @Override
     public int getCount() {

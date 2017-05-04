@@ -3,7 +3,7 @@ package com.android.Image;
 import android.os.Bundle;
 
 import com.android.R;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 
 /**
  * 个人相册页

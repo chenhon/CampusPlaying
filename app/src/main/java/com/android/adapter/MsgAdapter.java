@@ -72,7 +72,8 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             holder.receivedMsg.setText(msg.getContent());
             holder.leftAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity,uid));
         }else if(msg.getDirection() == Private.SEND_TYPE) {
-            holder.rightAvatar.setImageBitmap(GlobalApplication.getMyAvatar());
+           // holder.rightAvatar.setImageBitmap(GlobalApplication.getMyAvatar());
+            BitmapLoaderUtil.getInstance().getImage(holder.rightAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, GlobalApplication.getMySelf().getAvatar());
             holder.rightAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity,GlobalApplication.getMySelf().getId()));
             holder.receivedLayout.setVisibility(View.GONE);
             holder.sendLayout.setVisibility(View.VISIBLE);

@@ -9,7 +9,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="#fff"
+        android:background="@color/title_color"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
         <ImageView
@@ -165,18 +165,12 @@
                     android:src="@drawable/recommend"/>
             </LinearLayout>
 
-
-                <!--具体内容放在滑动条里面-->
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <FrameLayout
-                        android:id="@+id/comment_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                    </FrameLayout>
-                </ScrollView>
-
+            <!--放置评论list-->
+            <FrameLayout
+                android:id="@+id/comment_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </FrameLayout>
         </LinearLayout>
 
     </ScrollView>

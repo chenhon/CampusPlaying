@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 
 public class PollingService extends Service {
-    public static final String ACTION = "com.ryantang.service.PollingService";
+    public static final String ACTION = "com.android.person.service.PollingService";
     private GetNewPrivateListener mListener;
     private PrivateBind mBind = new PrivateBind();
 
@@ -31,12 +31,12 @@ public class PollingService extends Service {
     }
     @Override
     public void onCreate() {
-        System.out.println("onCreate运行");
+        System.out.println("PollingService:onCreate运行");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        System.out.println("onStartCommand运行");
+        System.out.println("PollingService:onStartCommand运行");
 
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -52,7 +52,7 @@ public class PollingService extends Service {
             manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
         }
         else{
-            System.out.println("为空");
+            System.out.println("PollingService:为空");
             manager.cancel(pi);
         }
         return super.onStartCommand(intent, flags, startId);
@@ -75,7 +75,7 @@ public class PollingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("Service:onDestroy");
+        System.out.println("PollingService:Service:onDestroy");
     }
 
     /**

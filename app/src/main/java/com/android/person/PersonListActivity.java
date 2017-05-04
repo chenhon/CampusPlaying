@@ -11,10 +11,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.adapter.PersonListAdapter;
-import com.android.guide.BaseActivity;
-import com.android.GlobalApplication;
+import com.android.BaseActivity;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.RequestManager;
@@ -24,6 +24,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import org.json.JSONArray;
@@ -37,11 +38,13 @@ public class PersonListActivity extends BaseActivity {
     private static final int LOAD_DATA_COUNT = 1;//每页加载10条数据
     public static final int RELATION_MYSLEF = 1;
     public static final int RELATION_OTHER = 2;
+    public static final int ACTIVITY_PARTICIPATE = 3;//参与活动的用户列表
     public static final int DIRECTION_ATTENTION = 1;
     public static final int DIRECTION_FANS = 2;
     int relation;//与当前用户的关系 1为自己， 2为他人
     int direction;//是关注列表还是被关注列表 1为关注列表， 2位粉丝列表
     int uid;//用户id
+    int aid;//参与列表依附的活动id
     @BindView(R.id.back_btn)
     ImageView mBackBtn;
     @BindView(R.id.title_name)
@@ -64,8 +67,8 @@ public class PersonListActivity extends BaseActivity {
      *
      * @param activity  启动该活动的活动
      * @param relation  与本人的关系
-     * @param direction 关注列表还是被关注列表
-     * @param uid       用户id
+     * @param direction 关注列表还是被关注列表             或者表示参与活动的人
+     * @param uid       用户id                               活动id
      */
     public static void startActivity(Activity activity, int relation, int direction, int uid) {
         Bundle bundle = new Bundle();
@@ -101,8 +104,9 @@ public class PersonListActivity extends BaseActivity {
             relation = bundle.getInt("RELATION");//与当前用户的关系 1为自己， 2为他人
             direction = bundle.getInt("DIRECTION");//是关注列表还是被关注列表 1为关注列表， 2位被关注列表
             uid = bundle.getInt("UID");//用户id
+            aid = bundle.getInt("UID");//活动id
         }
-
+        setResult(RESULT_OK);
         if(direction == DIRECTION_ATTENTION) { //关注列表
             if(relation == RELATION_MYSLEF || uid == GlobalApplication.getMySelf().getId()) {
                 rootString = getResources().getString(R.string.ROOT)
@@ -123,6 +127,10 @@ public class PersonListActivity extends BaseActivity {
                         +"user/"+uid+"/fan";
                 mTitleName.setText("他的粉丝列表");
             }
+        } else if(direction == ACTIVITY_PARTICIPATE) {
+            rootString = getResources().getString(R.string.ROOT)
+                    +"activity/"+aid+"/participant";
+            mTitleName.setText("参与活动的人");
         }
 
         initListView();
@@ -137,6 +145,8 @@ public class PersonListActivity extends BaseActivity {
         followsListView = mFollowPullListView.getRefreshableView();//获取动态列表控件
         followsListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         followsListView.setDivider(null);
+        followAdapter = new PersonListAdapter(this);
+        followsListView.setAdapter(followAdapter);//设置适配器
     }
 
     /**
@@ -155,8 +165,21 @@ public class PersonListActivity extends BaseActivity {
         mBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);
                 finish();
+            }
+        });
+
+        mFollowPullListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
+
+            //下拉刷新
+            @Override
+            public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+                refreshData();
+            }
+            //上拉加载更多
+            @Override
+            public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+                getListData();
             }
         });
     }
@@ -165,12 +188,16 @@ public class PersonListActivity extends BaseActivity {
      * 获取关注用户列表
      */
     private void getListData() {
-        followAdapter = new PersonListAdapter(this);
-        mFollowPullListView.setRefreshing(true);
+
+        if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
+            //  mSwipyrefreshlayout.setRefreshing(false);
+            Toast.makeText(this, "列表已加载完", Toast.LENGTH_SHORT).show();
+            //  return;
+        }
         if (networkStatus.isConnectInternet()) {
 
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
-                   // .with("page","4")    //获取第二页的数据
+                    .with("page",String.valueOf(loadPage+1))    //获取第二页的数据
                     .with("count",String.valueOf(10)); //每页条数
             VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
                     .with("token", GlobalApplication.getToken())
@@ -182,7 +209,6 @@ public class PersonListActivity extends BaseActivity {
 
                             Log.d("getUSERPRIVATE:TAG", response);
                             parseStatusJson(response); //将数据填入到List中去
-                            followsListView.setAdapter(followAdapter);//设置适配器
                             mFollowPullListView.onRefreshComplete();
                         }},
                     new Response.ErrorListener() {
@@ -209,21 +235,27 @@ public class PersonListActivity extends BaseActivity {
     private void parseStatusJson(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
-//            totalStatusCount =jsonObject.getInt("total");//总条数
+            listTotal =jsonObject.getInt("total");//总条数
 //            currentPage =jsonObject.getInt("page");//获取的当前页数
 //            startOrder = jsonObject.getInt("start") ; //当前页的起始序号
 //            pageCount = jsonObject.getInt("count") ; //当前页的起始序号
             JSONArray jsonArr;
             if(DIRECTION_ATTENTION == direction) {
                 jsonArr = jsonObject.getJSONArray("followers");
-            } else{
+            } else if(DIRECTION_FANS == direction){
                 jsonArr = jsonObject.getJSONArray("fans");
+            } else {
+                jsonArr = jsonObject.getJSONArray("participants");
             }
 
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
                 //适配器中添加数据项
                 followAdapter.addFollowListItem(jsonArr.getJSONObject(i));
             }
+            if(jsonArr.length() > 0){
+                loadPage++;
+            }
+            followAdapter.notifyDataSetChanged();
             //endOrder = startOrder + jsonArr.length();
             //statusesAdapter = new StatusesListAdapter(getActivity()); //初始化adapter
 
@@ -232,5 +264,15 @@ public class PersonListActivity extends BaseActivity {
             Log.d("getFOLLOW:TAG", e.toString());
         }
 
+    }
+
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        followAdapter.clearAllItem();//清楚数据
+        loadPage = 0;
+        listTotal = 0;
+        getListData();
     }
 }

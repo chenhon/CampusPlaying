@@ -22,7 +22,7 @@ import com.android.GlobalApplication;
 import com.android.R;
 import com.android.activity.ListActivity;
 import com.android.bottomnavigation.MainNavigationActivity;
-import com.android.guide.MainActivity;
+import com.android.login.MainActivity;
 import com.android.person.edit.PersonEdit;
 import com.android.status.RecentStatusActivity;
 import com.android.tool.BitmapLoaderUtil;
@@ -259,7 +259,7 @@ public class PersonFragment extends Fragment {
                             BitmapLoaderUtil.getInstance().getImage(mUserPortrait, BitmapLoaderUtil.TYPE_ORIGINAL, jsObject.getInt("avatar"));
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(getActivity(), "登录失败1".toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "登录失败", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, new Response.ErrorListener() {

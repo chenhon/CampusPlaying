@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.AlbumListAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.tool.DataUtils;
 import com.android.tool.MyStringRequest;
@@ -36,6 +36,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+/**
+ * 个人相册
+ */
 public class AlbumActivity extends BaseActivity {
     private static final int LOAD_DATA_COUNT = 10;//每页加载10条数据
 
@@ -112,7 +115,8 @@ public class AlbumActivity extends BaseActivity {
         }
         lastMonth = getLastMonth(Integer.parseInt(DataUtils.stampToDate(DataUtils.DATA_TYPE5,DataUtils.getCurrentTime())));
         initListView();
-        getListData();
+      //  getListData();
+        getListDataByLine();
         setListener();
     }
 
@@ -123,6 +127,8 @@ public class AlbumActivity extends BaseActivity {
         albumListView = mAlbumPullListView.getRefreshableView();//获取动态列表控件
         albumListView.setCacheColorHint(00000000);//此设置使得listview在滑动过程中不会出现黑色的背景
         albumListView.setDivider(null);
+        albumAdapter = new AlbumListAdapter(this);
+        albumListView.setAdapter(albumAdapter);//设置适配器
     }
 
     /**
@@ -134,7 +140,7 @@ public class AlbumActivity extends BaseActivity {
         albumListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(AlbumActivity.this, "按了" + position, Toast.LENGTH_SHORT).show();
+       //         Toast.makeText(AlbumActivity.this, "按了" + position, Toast.LENGTH_SHORT).show();
 //                Bundle bundle = new Bundle();
 //                GlobalApplication.setUserAvatar(privateAdapter.getAvatar(position-1));//传递对方头像
 //                bundle.putString("jsonStr", privateAdapter.getJsonObj(position-1).toString()); //传递私信的json数据
@@ -149,13 +155,15 @@ public class AlbumActivity extends BaseActivity {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-                new AlbumActivity.GetDataTask().execute();
+              //  new AlbumActivity.GetDataTask().execute();
+                refreshListDataByLine();
             }
 
             //上拉加载更多
             @Override
             public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-                albumLoadMoreData();
+             //   albumLoadMoreData();
+                getListDataByLine();
             }
         });
         mBackBtn.setOnClickListener(new View.OnClickListener() {
@@ -167,11 +175,11 @@ public class AlbumActivity extends BaseActivity {
     }
 
     /**
-     * 获取关注用户列表
+     * 获取列表
      */
     private void getListData() {
-        albumAdapter = new AlbumListAdapter(this);
-        mAlbumPullListView.setRefreshing(true);
+
+      //  mAlbumPullListView.setRefreshing(true);
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
                     .with("filter", DataUtils.stampToDate(DataUtils.DATA_TYPE5,DataUtils.getCurrentTime()))   //获取当前月份的照片
@@ -186,7 +194,6 @@ public class AlbumActivity extends BaseActivity {
                         public void onResponse(String response) {
                             Log.d("getPHOTO:TAG", response);
                             parseStatusJson(response); //将数据填入到List中去
-                            albumListView.setAdapter(albumAdapter);//设置适配器
                             mAlbumPullListView.onRefreshComplete();
                         }
                     },
@@ -227,6 +234,7 @@ public class AlbumActivity extends BaseActivity {
                 photoJson.add(jsonArr.getJSONObject(i));
             }
             addNewCount += jsonArr.length();
+            albumAdapter.notifyDataSetChanged();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -251,7 +259,7 @@ public class AlbumActivity extends BaseActivity {
                         @Override
                         public void onResponse(String response) {
                             Log.d("getPHOTO:TAG", response);
-
+                            mAlbumPullListView.onRefreshComplete();
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 addNewTotal = jsonObject.getInt("total");//总条数
@@ -276,14 +284,14 @@ public class AlbumActivity extends BaseActivity {
                             }
 
                             albumAdapter.notifyDataSetChanged();//适配器更新数据
-                            mAlbumPullListView.onRefreshComplete();
+
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                           // Log.d("getTIMELINE:TAG", error.getMessage(), error);
                             mAlbumPullListView.onRefreshComplete();
                         }
                     });
@@ -311,48 +319,46 @@ public class AlbumActivity extends BaseActivity {
                         @Override
                         public void onResponse(String response) {
                             Log.d("getPHOTO:TAG", response);
-
+                            mAlbumPullListView.onRefreshComplete();
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 lastMonthTotal = jsonObject.getInt("total");//总条数
-                                if (lastMonthTotal <= lastMonthCount){//下月照片已加载完
-                                    lastMonthCount = 0;
+                                if(lastMonthTotal == 0) {    //这个人没有照片
                                     isLoadLastData = false;
-                                    lastMonth = getLastMonth(lastMonth);
-                                    mAlbumPullListView.onRefreshComplete();
+                                    lastMonthCount = 0;
+                                    lastMonth = getLastMonth(lastMonth);    //设置下个月
                                     return ;
                                 }
-
                                 JSONArray jsonArr = jsonObject.getJSONArray("photos");
-                                if(!isLoadLastData){
-                                    albumAdapter.setLastDate(jsonObject.getInt("time"));
+                                if(!isLoadLastData){   //这个月的数据还没有加载过
+                                    albumAdapter.setLastDate(jsonObject.getInt("time"));//添加时间
                                 }
                                 List<JSONObject> photoJson = albumAdapter.getLastItemJson(isLoadLastData);
                                 isLoadLastData = true;
                                 //for (int i = lastMonthCount%LOAD_DATA_COUNT; i < jsonArr.length(); i++) {//应该这么写
-                                for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
-
-                                    //      Log.d("getPHOTO:TAG", "i = " + i);
+                                for (int i = 0; i < jsonArr.length(); i++) {
                                     photoJson.add(jsonArr.getJSONObject(i));
-                                    //      Log.d("getPHOTO:TAG", "photoJson.size = " + photoJson.size());
                                 }
                                 lastMonthCount += jsonArr.length();
+                                if(lastMonthCount >= lastMonthTotal) {  //这个月数据加载完
+                                    isLoadLastData = false;
+                                    lastMonthCount = 0;
+                                    lastMonth = getLastMonth(lastMonth);
+                                }
+                                albumAdapter.notifyDataSetChanged();//适配器更新数据
                                 //   Log.d("getPHOTO:TAG", String.valueOf(addNewCount) + "jsonArr.length()" + jsonArr.length());
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 Log.d("getFOLLOW:TAG", e.toString());
                             }
-
-                            albumAdapter.notifyDataSetChanged();//适配器更新数据
-                            mAlbumPullListView.onRefreshComplete();
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                           // Log.d("getTIMELINE:TAG", error.getMessage(), error);
                             mAlbumPullListView.onRefreshComplete();
                         }
                     });
@@ -390,12 +396,91 @@ public class AlbumActivity extends BaseActivity {
          */
         @Override
         protected void onPostExecute(String[] result) {
-            if(!isLoadData) {
-                getListData();
-            } else {
-                albumAddNewData();
-            }
+            albumAddNewData();
             super.onPostExecute(result);
         }
     }
+
+
+
+
+    /***********************根据修改的接口重写*************************************/
+    /**
+     * 获取列表
+     */
+    private int listTotal;//评论总数
+    private int loadPage = 0;
+    private void getListDataByLine() {
+
+        //  mAlbumPullListView.setRefreshing(true);
+        if (networkStatus.isConnectInternet()) {
+            VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
+                  //  .with("filter", DataUtils.stampToDate(DataUtils.DATA_TYPE5,DataUtils.getCurrentTime()))   //获取当前月份的照片
+                    .with("page",String.valueOf(loadPage+1))    //加载第一页
+                    .with("count", String.valueOf(LOAD_DATA_COUNT)); //每页条数
+            VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
+                    .with("token", GlobalApplication.getToken())
+                    .with("Accept", "application/json"); // 数据格式设置为json
+            mStringRequest = new MyStringRequest(Request.Method.GET, RequestManager.getURLwithParams(rootString, urlParams), headerParams, null,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("getPHOTO:TAG", response);
+                            parseStatusJsonByLine(response); //将数据填入到List中去
+                            mAlbumPullListView.onRefreshComplete();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("getTIMELINE:TAG", "出错");
+                            mAlbumPullListView.onRefreshComplete();
+                        }
+                    });
+
+            mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
+            mQueue.add(mStringRequest);
+        } else {
+            mAlbumPullListView.onRefreshComplete();
+            Toast.makeText(this, getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
+    /**
+     * json数据转换成状态item并设置adapter
+     *
+     * @param json
+     */
+    private void parseStatusJsonByLine(String json) {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            listTotal = jsonObject.getInt("total");//总条数
+            if (listTotal == 0){//当前月份没有发布的相片
+                Toast.makeText(this, "暂无相片",Toast.LENGTH_SHORT).show();
+                //return ;
+            }
+
+//            albumAdapter.setDate(jsonObject.getInt("time"));
+            JSONArray jsonArr = jsonObject.getJSONArray("photos");
+            for (int i = 0; i < jsonArr.length(); i++) {
+                long creat = jsonArr.getJSONObject(i).getLong("created_at");
+                List<JSONObject> photoJson = albumAdapter.getItemJson(Integer.parseInt(DataUtils.stampToDate(DataUtils.DATA_TYPE5,creat)));
+                photoJson.add(jsonArr.getJSONObject(i));
+            }
+
+            if(jsonArr.length() > 0) {
+                loadPage++;
+            }
+            albumAdapter.notifyDataSetChanged();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void refreshListDataByLine() {
+        loadPage = 0;
+        albumAdapter.clearListData();
+        getListDataByLine();
+    }
+
 }

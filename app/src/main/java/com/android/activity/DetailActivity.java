@@ -19,11 +19,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.R;
-import com.android.guide.BaseActivity;
-import com.android.lbs.BNMainActivity;
+import com.android.lbs.NavigationActivity;
 import com.android.model.Comment;
+import com.android.person.PersonListActivity;
 import com.android.person.PersonOnClickListenerImpl;
 import com.android.status.CommentFragment;
 import com.android.tool.BitmapLoaderUtil;
@@ -115,6 +116,8 @@ public class DetailActivity extends BaseActivity {
     SwipyRefreshLayout mSwipyrefreshlayout;
     @BindView(R.id.activity_type)
     TextView mActivityType;
+    @BindView(R.id.ll_to_participate)
+    LinearLayout mLlToParticipate;
 
 
     private CommentFragment mCommentFragment;//评论碎片
@@ -306,10 +309,7 @@ public class DetailActivity extends BaseActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     mProgressHUD.dismiss();
-                    Log.e("PublishActivity:TAG", error.getMessage(), error);
-                    byte[] htmlBodyBytes = error.networkResponse.data;
-                    Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);
-                    Toast.makeText(DetailActivity.this, "网络超时".toString(), Toast.LENGTH_SHORT).show();
+                    showVolleyError(error);
                 }
             });
             executeRequest(mStringRequest);
@@ -439,7 +439,7 @@ public class DetailActivity extends BaseActivity {
         mLlToPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {       //暂时不看发布照片的权限
-                com.android.status.picture.ListActivity.startActivity(DetailActivity.this, aid, 2, true);
+                com.android.status.picture.ListActivity.startActivity(DetailActivity.this, aid, 2, hasParticipate);
             }
         });
 
@@ -447,7 +447,14 @@ public class DetailActivity extends BaseActivity {
         mLlToMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BNMainActivity.startActivity(DetailActivity.this, endLongitude, endLatitude, endAddress);
+                NavigationActivity.startActivity(DetailActivity.this, endLongitude, endLatitude, endAddress);
+            }
+        });
+        //活动参与者
+        mLlToParticipate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PersonListActivity.startActivity(DetailActivity.this, 0 ,PersonListActivity.ACTIVITY_PARTICIPATE,aid);
             }
         });
         //发动发起人主页面
@@ -747,13 +754,13 @@ public class DetailActivity extends BaseActivity {
                         public void onResponse(String response) {
                             if ("null".equals(response) || null == response) {
 
-                                Toast.makeText(DetailActivity.this, "加载失败".toString(), Toast.LENGTH_SHORT).show();
+                                //   Toast.makeText(DetailActivity.this, "加载失败".toString(), Toast.LENGTH_SHORT).show();
                                 mSwipyrefreshlayout.setRefreshing(false);
                                 return;
                             }
                             try {
                                 loadPage++;
-                                Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
+                                //   Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
                                 Log.d("ActivityDetail:TAG", response);
                                 mSwipyrefreshlayout.setRefreshing(false);
                                 JSONObject jsObject = new JSONObject(response);

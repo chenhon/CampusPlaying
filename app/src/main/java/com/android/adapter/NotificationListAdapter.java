@@ -34,6 +34,9 @@ public class NotificationListAdapter extends BaseAdapter {
         this.mNotifications = new ArrayList<>();
     }
 
+    public void clearListData() {
+        mNotifications.clear();
+    }
     public int getNotificationId(int position) {
         return mNotifications.get(position).getId();
     }

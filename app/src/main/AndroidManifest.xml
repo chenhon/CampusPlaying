@@ -16,17 +16,20 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-    <!-- 百度地图相关权限 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--高德-->
+    <!--允许程序打开网络套接字-->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--允许程序设置内置sd卡的写权限-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--允许程序获取网络状态-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--允许程序访问WiFi网络信息-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--允许程序读写手机状态和身份-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--允许程序访问CellID或WiFi热点来获取粗略的位置-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- 访问SD卡权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -43,20 +46,16 @@
 
     <application android:name=".GlobalApplication"
         android:allowBackup="true"
-        android:icon="@drawable/campus_playing_app_icon"
+        android:icon="@drawable/logo22"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.NoTitleBar">
+        <!--设置高德Key-->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="537e788e552f5141a9516830e454689a" />
 
-        <!-- 百度地图相关 -->
-        <meta-data android:name="com.baidu.lbsapi.API_KEY"
-            android:value="pKpIlA4gtXhhcQuMOlD4ivwNE0N9VZvz" />
-
-        <service android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":remote" />
-
-        <activity android:name=".guide.SplashActivity"
+        <activity android:name=".login.SplashActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppStartLoadTranslucent">
@@ -95,8 +94,8 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".guide.BaseActivity" />
-        <activity android:name=".guide.MainActivity"
+        <activity android:name=".BaseActivity" />
+        <activity android:name=".login.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".bottomnavigation.MainNavigationActivity"
@@ -140,7 +139,7 @@
         <activity android:name=".person.AlbumActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".guide.RegisterActivity"
+        <activity android:name=".login.RegisterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".remind.SystemMessageActivity"
@@ -161,7 +160,7 @@
         <activity android:name=".person.PersonActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
-        <activity android:name=".lbs.BNMainActivity"
+        <!--<activity android:name=".lbs.BNMainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
         <activity android:name=".lbs.BNDemoGuideActivity"
@@ -172,13 +171,19 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
+        </activity>-->
 
         <!-- 服务配置 -->
         <service android:name=".person.PollingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.ryantang.service.PollingService" />
+                <action android:name="com.android.person.service.PollingService" />
+            </intent-filter>
+        </service>
+        <service android:name=".bottomnavigation.PollingGetMsgService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.android.bottomnavigation.service.PollingGetMsgService" />
             </intent-filter>
         </service>
 
@@ -200,6 +205,10 @@
         <activity android:name=".remind.CommentListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Notranslucent" />
+        <activity android:name=".lbs.NavigationActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Notranslucent" />
+
     </application>
 
 </manifest>

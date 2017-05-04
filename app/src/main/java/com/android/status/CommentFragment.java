@@ -13,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.adapter.CommentListAdapter;
-import com.android.GlobalApplication;
 import com.android.model.Comment;
 import com.android.status.picture.DetailActivity;
 import com.android.tool.MyStringRequest;
@@ -251,7 +251,8 @@ public class CommentFragment extends Fragment {
                                         comment.setParentId(jsonObject1.getInt("parent"));
                                         mComments.add(0,comment);
                                         mCommentAdapter.notifyDataSetChanged();
-                                        //适配器中添加数据项
+
+                                    //适配器中添加数据项
                                         if(!isLoadData) {   //还没有加载数据
                                             isLoadData = true;
                                             loadedCount = 1;//已加载数
@@ -305,7 +306,7 @@ public class CommentFragment extends Fragment {
             JSONArray jsonArray = jsObject.getJSONArray("comments");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                System.out.println("comments:"+jsonObject1.toString());
+               // System.out.println("comments:"+jsonObject1.toString());
                 Comment comment = new Comment();
                 comment.setId(jsonObject1.getInt("id"));//评论id
                 comment.setCreatorId(jsonObject1.getInt("creator"));

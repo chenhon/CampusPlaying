@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.StatusesListAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.model.Statuses;
 import com.android.status.picture.DetailActivity;
@@ -38,7 +38,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecentStatusActivity extends BaseActivity {
-    private static final int LOAD_DATA_COUNT = 1;//每页加载10条数据
+    private static final int LOAD_DATA_COUNT = 10;//每页加载10条数据
     private static final int BACKWARD = 1; //加载更多 （默认）  ，这里只向后加载就可以了
     private static final int FORWARD = 0;   //刷新动态
     public static final int RELATION_MYSLEF = 1;
@@ -189,7 +189,7 @@ public class RecentStatusActivity extends BaseActivity {
             //下拉刷新
             @Override
             public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-
+                refreshData();
             }
 
             //上拉加载更多
@@ -209,15 +209,6 @@ public class RecentStatusActivity extends BaseActivity {
 
 
     private void getListData() {
-/*
-        if ((listTotal != 0) && (loadPage * LOAD_DATA_COUNT >= listTotal)) {
-            Toast.makeText(this, "动态列表已加载完！", Toast.LENGTH_SHORT).show();
-            mStatusPullListView.onRefreshComplete();
-            return;
-        }
-*/
-
-
         if (networkStatus.isConnectInternet()) {
             if(!isLoadData){
                 frontStamp = DataUtils.getCurrentTime();
@@ -242,8 +233,8 @@ public class RecentStatusActivity extends BaseActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                            showVolleyError(error);
+                            mStatusPullListView.onRefreshComplete();
                         }
                     });
             mQueue = GlobalApplication.get().getRequestQueue();
@@ -332,5 +323,14 @@ public class RecentStatusActivity extends BaseActivity {
             getListData();
             super.onPostExecute(result);
         }
+    }
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        statusesAdapter.clearListData();//清楚数据
+        isLoadData = false;//记录是否已经加载了数据
+        frontStamp = 0;//最前面的时间戳  小
+        getListData();
     }
 }

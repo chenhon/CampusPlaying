@@ -3,5 +3,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="statuses_item_interval">4dp</dimen>
+    <dimen name="offset_title">5dp</dimen>
 
 </resources>

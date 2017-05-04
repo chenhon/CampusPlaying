@@ -192,7 +192,7 @@ public class HomeFragment extends Fragment {
 
     private void getListData() {
 
-        mStatusesPullListView.setRefreshing(true);
+     //   mStatusesPullListView.setRefreshing(true);
         if (networkStatus.isConnectInternet()) {
 
             //默认向后
@@ -216,8 +216,7 @@ public class HomeFragment extends Fragment {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(),error);
+                           // showVolleyError(error);
                             mStatusesPullListView.onRefreshComplete(); //刷新结束
                             mIvRefresh.setClickable(true);//使能点击刷新
                         }
@@ -420,10 +419,10 @@ public class HomeFragment extends Fragment {
      * 刷新，直接清掉所有数据然后再重新加载
      */
     private void refreshData() {
-        statusesAdapter.clearListData();//清楚数据
         isLoadData = false;//记录是否已经加载了数据
         frontStamp = 0;//最前面的时间戳  小
         endStamp = 0; //最近加载动态的一条时间戳 大
+        statusesAdapter.clearListData();//清楚数据
         getListData();
     }
 

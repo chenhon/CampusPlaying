@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.android.R;
 import com.android.adapter.MsgAdapter;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.model.Private;
 import com.android.tool.DataUtils;
@@ -92,9 +92,8 @@ public class CommunicateActivity extends BaseActivity {
             mService.setListener(new PollingService.GetNewPrivateListener() {
                 @Override
                 public void getNewPrivate() {
-                    CommunicateActivity.this.getPrivateList(FORWARD);//轮询检测新的消息
-                    // CommunicateActivity.this.getPrivateList(BACKWARD);//有数据可测试
-                    // System.out.println("Service:onDestroy");
+                   // CommunicateActivity.this.getPrivateList(FORWARD);//轮询检测新的消息
+                    CommunicateActivity.this.getNewPrivateList();
                 }
             });
             //调用startService会开始运行onStartCommand
@@ -136,6 +135,7 @@ public class CommunicateActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         initData();
+        setResult(RESULT_OK);
     }
     private void initData() {
         Bundle bundle = this.getIntent().getExtras();
@@ -146,7 +146,6 @@ public class CommunicateActivity extends BaseActivity {
         }
         networkStatus = new NetworkConnectStatus(this);
         rootString = getResources().getString(R.string.ROOT) + "msg/private/"+uid;
-        networkStatus = new NetworkConnectStatus(this);
 
         initView();
         setListener();
@@ -167,10 +166,63 @@ public class CommunicateActivity extends BaseActivity {
         adapter = new MsgAdapter(this, msgs, uid, avatarId);
         mMsgRecycleView.setAdapter(adapter);
     }
-    void getPrivateList(int direction){   //向后加载数据
+    void getNewPrivateList(){   //加载最新数据
+        if (networkStatus.isConnectInternet()) {
+            //默认向后
+            VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
+                    .with("count",String.valueOf(LOAD_DATA_COUNT));//条数
+            VolleyRequestParams headerParams = new VolleyRequestParams()
+                    .with("token", GlobalApplication.getToken())
+                    .with("Accept","application/json"); // 数据格式设置为json
+            MyStringRequest mStringRequest = new MyStringRequest(Request.Method.GET, RequestManager.getURLwithParams(rootString + "/new", urlParams), headerParams, null,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            mSwipeRefresh.setRefreshing(false);//结束转圈
+                            Log.d("NewPrivateList:TAG", response);
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONArray jsonArr = jsonObject.getJSONArray("items");
+                                {
+                                    for (int i = 0; i < jsonArr.length(); i++) {
+                                        JSONObject jsonObject1 = jsonArr.getJSONObject(i);
+                                        Private pri = new Private();
+                                        pri.setDirection(jsonObject1.getInt("direction"));
+                                        pri.setContent(jsonObject1.getString("content"));
+                                        pri.setCreated_at(jsonObject1.getLong("created_at"));
+                                        msgs.add(pri);
+                                    }
+                                }
+                                if(jsonArr.length() > 0) {
+                                    adapter.notifyDataSetChanged();
+                                    mMsgRecycleView.scrollToPosition(msgs.size()-1);
+                                } else {
+                                    //   Toast.makeText(CommunicateActivity.this, "对话已加载完".toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                               // Log.d("getTIMELINE:TAG", e.toString());
+                            }
+                            //list中添加数据
+
+                        }},
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            mSwipeRefresh.setRefreshing(false);//结束转圈
+                            showVolleyError(error);
+                        }
+                    });
+            executeRequest(mStringRequest);
+        }else {
+            mSwipeRefresh.setRefreshing(false);//结束转圈
+            Toast.makeText(this, getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    void getPrivateList(int direction){   //加载的方向
         final int dir;
         System.out.println("拉取数据");
-     //   mSwipeRefresh.setRefreshing(true);//转圈
         long cursor;
         if(!isLoadData) {     //没有加载过数据那么一定是加载最新的数据，向后加载
             cursor = DataUtils.getCurrentTime();
@@ -249,7 +301,7 @@ public class CommunicateActivity extends BaseActivity {
 
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.d("getTIMELINE:TAG", e.toString());
+                              //  Log.d("getTIMELINE:TAG", e.toString());
                             }
                             //list中添加数据
                             mSwipeRefresh.setRefreshing(false);//结束转圈
@@ -257,8 +309,7 @@ public class CommunicateActivity extends BaseActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("CommunicateActivity:TAG", "出错");
-                            Log.d("CommunicateActivity:TAG", error.getMessage(),error);
+                            showVolleyError(error);
                             mSwipeRefresh.setRefreshing(false);//结束转圈
                         }
                     });
@@ -274,7 +325,7 @@ public class CommunicateActivity extends BaseActivity {
         mBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);
+              //  setResult(RESULT_OK);
                 finish();
             }
         });
@@ -310,7 +361,7 @@ public class CommunicateActivity extends BaseActivity {
      * 发送一条消息
      * @param content  消息内容
      */
-    private void sedMsg(String content) {
+    private void sedMsg(final String content) {
         if (networkStatus.isConnectInternet()) {
             mProgressHUD = ProgressHUD.show(this, "发送中...", true, true, new DialogInterface.OnCancelListener() {
                 @Override
@@ -329,7 +380,14 @@ public class CommunicateActivity extends BaseActivity {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            try {
+                            Private pri = new Private();
+                            pri.setDirection(Private.SEND_TYPE);
+                            pri.setContent(content);
+                            pri.setCreated_at(DataUtils.getCurrentTime());
+                            msgs.add(pri);
+                            adapter.notifyDataSetChanged();
+                            mMsgRecycleView.scrollToPosition(msgs.size()-1);
+                            /*try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 Private pri = new Private();
                                 pri.setDirection(jsonObject.getInt("direction"));
@@ -347,7 +405,7 @@ public class CommunicateActivity extends BaseActivity {
                             } catch (Exception e) {
                             e.printStackTrace();
                             Log.d("getTIMELINE:TAG", e.toString());
-                        }
+                        }*/
                             mProgressHUD.dismiss();
                         }
                     }, new Response.ErrorListener() {
@@ -366,6 +424,7 @@ public class CommunicateActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+      //  setResult(RESULT_OK);
         super.onDestroy();
         //Stop polling service
         System.out.println("Stop polling service...");

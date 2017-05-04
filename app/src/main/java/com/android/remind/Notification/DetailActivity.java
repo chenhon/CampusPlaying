@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.R;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.model.Comment;
 import com.android.status.CommentFragment;
@@ -173,6 +173,7 @@ public class DetailActivity extends BaseActivity {
                                     Toast.makeText(DetailActivity.this, "通知已删除".toString(), Toast.LENGTH_SHORT).show();
                                     //删除处理？
                                     mProgressHUD.dismiss();
+                                    DetailActivity.this.finish();//返回列表
                                 }
                             }, new Response.ErrorListener() {
                         @Override
@@ -246,9 +247,7 @@ public class DetailActivity extends BaseActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     mSwipyrefreshlayout.setRefreshing(false);
-                    Log.e("PublishActivity:TAG", error.getMessage(), error);
-                    byte[] htmlBodyBytes = error.networkResponse.data;
-                    Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);
+                    showVolleyError(error);
                     Toast.makeText(DetailActivity.this, "网络超时".toString(), Toast.LENGTH_SHORT).show();
                 }
             });

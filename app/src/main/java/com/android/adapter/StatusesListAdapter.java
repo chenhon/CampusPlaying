@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.android.R;
 import com.android.model.Statuses;
+import com.android.person.PersonListActivity;
 import com.android.person.PersonOnClickListenerImpl;
 import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.DataUtils;
@@ -153,6 +154,14 @@ public class StatusesListAdapter extends BaseAdapter {
             BitmapLoaderUtil.getInstance().getImage(userAvatar,BitmapLoaderUtil.TYPE_ORIGINAL,mAttachObjs.get(position).getJSONObject("creator_obj").getInt("avatar"));
             //设置照片点击事件
             userAvatar.setOnClickListener(new PersonOnClickListenerImpl(mActivity,getAttachObj(position).getInt("creator")));
+            //查看活动参与者
+            ImageView mParticipateUser = (ImageView)view.findViewById(R.id.participate_user);
+            mParticipateUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PersonListActivity.startActivity(mActivity, 0 ,PersonListActivity.ACTIVITY_PARTICIPATE,uid);
+                }
+            });
             //获取活动图像
             final ImageView activityImage = (ImageView) view.findViewById(activity_image);
             BitmapLoaderUtil.getInstance().getImage(activityImage,BitmapLoaderUtil.TYPE_MEDIAN,mAttachObjs.get(position).getInt("image"));

@@ -41,4 +41,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
     compile files('libs/MobCommons-2017.0322.0931.jar')
+    compile files('libs/AMap3DMap_5.0.0_AMapNavi_5.0.1_AMapSearch_5.0.0_AMapLocation_3.4.0_20170427.jar')
 }

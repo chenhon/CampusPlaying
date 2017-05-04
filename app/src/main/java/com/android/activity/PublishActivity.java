@@ -16,19 +16,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
 import com.android.R;
-import com.android.guide.BaseActivity;
 import com.android.lbs.SetLocationActivity;
 import com.android.tool.AddTagDialog;
 import com.android.tool.AskSavePopMenu;
 import com.android.tool.BottomPopSelectMenu;
 import com.android.tool.DataUtils;
 import com.android.tool.FlowLayout;
-import com.android.tool.PhotoFrmAlbum;
-import com.android.tool.PhotoFrmCamera;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
+import com.android.tool.PhotoFrmAlbum;
+import com.android.tool.PhotoFrmCamera;
 import com.android.tool.ProgressHUD;
 import com.android.tool.SelectActivityTag;
 import com.android.tool.SelectDateAndTime;
@@ -466,7 +466,7 @@ public class PublishActivity extends BaseActivity {
                     address = data.getStringExtra("address");//地址
                     mAddressSet.setText(address);
                     isGetLocation = true;
-                    Toast.makeText(this, "经度" + longitude + ",纬度" + latitude, Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(this, "经度" + longitude + ",纬度" + latitude, Toast.LENGTH_SHORT).show();
 
                          /*       intent.putExtra("latitude", String.valueOf(option.getPosition().latitude));//纬度
     intent.putExtra("longitude", String.valueOf(option.getPosition().longitude));//经度*/

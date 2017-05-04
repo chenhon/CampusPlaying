@@ -1,7 +1,8 @@
 package com.android.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.R;
-import com.android.GlobalApplication;
+import com.android.status.picture.DetailActivity;
 import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.PictureView;
-import com.android.volley.RequestQueue;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,16 +34,12 @@ import butterknife.ButterKnife;
 public class AlbumListAdapter extends BaseAdapter {
     private List<Integer> dates;//日期
     private List<List<JSONObject>> mAlbumJsons;//照片对应的json数据
-    private Map<Integer, Bitmap> mAlbumBitmaps;//照片，需要另外加载，key为照片id
     private Activity mActivity;
-    private RequestQueue mQueue;
 
     public AlbumListAdapter(Activity activity) {
         this.mActivity = activity;
         this.dates = new ArrayList<>();
         this.mAlbumJsons = new ArrayList<>();
-        this.mAlbumBitmaps = new HashMap<>();
-        mQueue = GlobalApplication.get().getRequestQueue();
     }
 
     /**
@@ -62,6 +56,21 @@ public class AlbumListAdapter extends BaseAdapter {
      */
     public void setLastDate(int datStr) {
         dates.add(datStr);
+    }
+
+    public void clearListData() {
+        dates.clear();
+        mAlbumJsons.clear();
+    }
+    public List getItemJson(int datStr) {
+        if(!dates.contains(datStr)) {
+            dates.add(datStr);
+            mAlbumJsons.add(new ArrayList<JSONObject>());
+            return mAlbumJsons.get(mAlbumJsons.size()-1);
+        } else {
+            return mAlbumJsons.get(dates.indexOf(datStr));
+        }
+
     }
 
     /**
@@ -132,6 +141,25 @@ public class AlbumListAdapter extends BaseAdapter {
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 BitmapLoaderUtil.getInstance().getImage(imageView, BitmapLoaderUtil.TYPE_MEDIAN, pictureJson.getInt("media_id"));
                 viewHolder.mPictureContainer.addView(imageView, i);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(mActivity, DetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        Bundle bundle = new Bundle();
+                        int pid = 0;
+                        int creatorId = 0;
+                        try {
+                            pid = pictureJson.getInt("id");
+                            creatorId = pictureJson.getInt("creator");
+                            bundle.putInt("aid", pid);       //动态id
+                            bundle.putInt("creatorId", creatorId); //发布活动者id
+                            intent.putExtras(bundle);  //传入详细信息
+                            mActivity.startActivity(intent);
+                        } catch (Exception e) {
+
+                        }
+                    }
+                });
                 /*if(mAlbumBitmaps.containsKey(pictureJson.getInt("id"))) {//图片已经加载过了
                     imageView.setImageBitmap(mAlbumBitmaps.get(pictureJson.getInt("id")));
                 } else {

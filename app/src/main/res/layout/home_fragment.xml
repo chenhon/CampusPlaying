@@ -11,18 +11,27 @@
         android:layout_height="48dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:background="#fff"
+        android:background="@color/title_color"
         android:orientation="horizontal"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:gravity="center_vertical" >
-        <ImageView
-            android:id="@+id/iv_search"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="33dp"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            android:src="@drawable/search_frame"/>
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/iv_search"
+                android:layout_width="match_parent"
+                android:layout_height="33dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/search_edittext_shape"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/search_icon"/>
+        </RelativeLayout>
         <ImageView
             android:id="@+id/iv_refresh"
             android:visibility="gone"

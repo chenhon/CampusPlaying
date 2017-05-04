@@ -14,13 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.R;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
+import com.android.R;
 import com.android.tool.BitmapLoaderUtil;
-import com.android.tool.PhotoFrmAlbum;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
+import com.android.tool.PhotoFrmAlbum;
 import com.android.tool.ProgressHUD;
 import com.android.tool.SetGenderDialog;
 import com.android.tool.UploadImageUtil;
@@ -63,6 +63,8 @@ public class PersonEdit extends BaseActivity {
     TextView mTvDescription;
     @BindView(R.id.ll_edit_description)
     LinearLayout mLlEditDescription;
+    @BindView(R.id.tv_user)
+    TextView mTvUser;
 
 
     private String rootString;
@@ -78,14 +80,15 @@ public class PersonEdit extends BaseActivity {
         setContentView(R.layout.activity_person_edit);
         ButterKnife.bind(this);
 
-
+        setResult(RESULT_OK);   //一定要放在finish前面
         mPhotoFrmAlbum = new PhotoFrmAlbum(this, GET_PHOTO_FRM_ALBUM, CUT_PHOTO);
         initView();
         setListener();
     }
 
     private void initView() {
-      //  mIvAvatar.setImageBitmap(GlobalApplication.getMyAvatar()); //设置头像
+        //  mIvAvatar.setImageBitmap(GlobalApplication.getMyAvatar()); //设置头像
+        mTvUser.setText(GlobalApplication.getMySelf().getUser());//账号
         BitmapLoaderUtil.getInstance().getImage(mIvAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, GlobalApplication.getMySelf().getAvatar());
         mTvName.setText(GlobalApplication.getMySelf().getName());  //设置昵称
         setGender(GlobalApplication.getMySelf().getGender());      //设置性别
@@ -113,7 +116,6 @@ public class PersonEdit extends BaseActivity {
         mBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);   //一定要放在finish前面
                 PersonEdit.this.finish();
                 overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
             }
@@ -276,7 +278,7 @@ public class PersonEdit extends BaseActivity {
         @Override
         protected void onPostExecute(String[] result) {
             if (mCutAvatar != null) {
-                new UploadImageUtil(PersonEdit.this, mCutAvatar, new UploadImageUtil.CallBackWithMediaId(){
+                new UploadImageUtil(PersonEdit.this, mCutAvatar, new UploadImageUtil.CallBackWithMediaId() {
                     @Override
                     public void handlerWithMediaId(int mediaId) {
                         changeAvatar(mediaId);

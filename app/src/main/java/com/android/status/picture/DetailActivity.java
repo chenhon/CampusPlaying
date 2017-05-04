@@ -13,9 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.R;
-import com.android.guide.BaseActivity;
+import com.android.BaseActivity;
 import com.android.GlobalApplication;
+import com.android.R;
 import com.android.model.Comment;
 import com.android.person.PersonOnClickListenerImpl;
 import com.android.status.CommentFragment;
@@ -164,7 +164,7 @@ public class DetailActivity extends BaseActivity {
                         public void onResponse(String response) {
                             try {
                                 loadPage++;
-                                Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
+                              //  Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
                                 Log.d("ActivityDetail:TAG", response);
                                 mSwipyrefreshlayout.setRefreshing(false);
                                 JSONObject jsObject = new JSONObject(response);
@@ -193,10 +193,7 @@ public class DetailActivity extends BaseActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     mSwipyrefreshlayout.setRefreshing(false);
-                    Log.e("PublishActivity:TAG", error.getMessage(), error);
-                    byte[] htmlBodyBytes = error.networkResponse.data;
-                    Log.e("PublishActivity:TAG", new String(htmlBodyBytes), error);
-                    Toast.makeText(DetailActivity.this, "网络超时".toString(), Toast.LENGTH_SHORT).show();
+                    showVolleyError(error);
                 }
             });
             executeRequest(mStringRequest);
@@ -218,7 +215,7 @@ public class DetailActivity extends BaseActivity {
             BitmapLoaderUtil.getInstance().getImage(mImage, BitmapLoaderUtil.TYPE_MEDIAN, jsonobject.getInt("media_id"));//发布的图片
 
             aid = jsonobject.getInt("activity_id");//活动的id
-            mAttachedActivityTitle.setText(jsonobject.getString("activity_title"));//活动标题
+            mAttachedActivityTitle.setText("#" + jsonobject.getString("activity_title") +"#");//活动标题
             //loadComment();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -255,7 +252,7 @@ public class DetailActivity extends BaseActivity {
                             }
                             try {
                                 loadPage++;
-                                Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
+                            //    Toast.makeText(DetailActivity.this, "加载成功".toString(), Toast.LENGTH_SHORT).show();
                                 Log.d("ActivityDetail:TAG", response);
                                 mSwipyrefreshlayout.setRefreshing(false);
                                 JSONObject jsObject = new JSONObject(response);

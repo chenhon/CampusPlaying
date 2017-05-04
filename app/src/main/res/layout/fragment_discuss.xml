@@ -5,11 +5,14 @@
     tools:context="com.android.status.CommentFragment">
 
     <!--放置评论列表-->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_comment"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </android.support.v7.widget.RecyclerView>
-
+        </android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
 </FrameLayout>

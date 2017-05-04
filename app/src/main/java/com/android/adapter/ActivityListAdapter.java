@@ -9,9 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.R;
+import com.android.person.PersonListActivity;
 import com.android.person.PersonOnClickListenerImpl;
 import com.android.tool.BitmapLoaderUtil;
 import com.android.tool.DataUtils;
+import com.android.tool.PictureView;
 import com.android.tool.ShareUtil;
 
 import java.util.ArrayList;
@@ -20,8 +22,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.android.R.id.activity_content;
 
 /**
  * Created by Administrator on 2017/3/8 0008.
@@ -36,6 +36,10 @@ public class ActivityListAdapter extends BaseAdapter {
         mActivitys = new ArrayList();
     }
 
+    public void clearListData() {
+        mActivitys.clear();
+    }
+
     public int getUid(int position) {
         return mActivitys.get(position).getCreatorId();
     }
@@ -47,6 +51,7 @@ public class ActivityListAdapter extends BaseAdapter {
     public void clearAllItem() {
         mActivitys.clear();
     }
+
     @Override
     public int getCount() {
         return mActivitys.size();
@@ -88,8 +93,8 @@ public class ActivityListAdapter extends BaseAdapter {
             viewHolder.mPublishedTime.setText(DataUtils.stampToDate(DataUtils.DATA_TYPE2, mActivitys.get(position).getTime()));//发布时间
             viewHolder.mActivityTitle.setText(mActivitys.get(position).getTitle());//活动标题
             viewHolder.mActivityContent.setText(mActivitys.get(position).getContent());//活动内容
-            viewHolder.mWisherCount.setText(mActivitys.get(position).getWisherCount()+"");//活动热度
-            viewHolder.mParticipantCount.setText(mActivitys.get(position).getParticipantCount()+"");//已参与人数
+            viewHolder.mWisherCount.setText(mActivitys.get(position).getWisherCount() + "");//活动热度
+            viewHolder.mParticipantCount.setText(mActivitys.get(position).getParticipantCount() + "");//已参与人数
             switch (mActivitys.get(position).getState()) { //活动进行状态
                 case 0:
                     viewHolder.mActivityStatusText.setText("发起中");
@@ -110,10 +115,18 @@ public class ActivityListAdapter extends BaseAdapter {
             BitmapLoaderUtil.getInstance().getImage(viewHolder.mUserAvatar, BitmapLoaderUtil.TYPE_ORIGINAL, mActivitys.get(position).getAvatarId());
             //获取活动图像
             BitmapLoaderUtil.getInstance().getImage(viewHolder.mActivityImage, BitmapLoaderUtil.TYPE_MEDIAN, mActivitys.get(position).getImageId());
+            //活动分享
             viewHolder.mActivityShare.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ShareUtil.showShare(mActivity, mActivitys.get(position).getId(),mActivitys.get(position).getTitle());
+                    ShareUtil.showShare(mActivity, mActivitys.get(position).getId(), mActivitys.get(position).getTitle());
+                }
+            });
+            //查看活动参与者
+            viewHolder.mParticipateUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PersonListActivity.startActivity(mActivity, 0 ,PersonListActivity.ACTIVITY_PARTICIPATE,mActivitys.get(position).getId());
                 }
             });
 
@@ -142,7 +155,6 @@ public class ActivityListAdapter extends BaseAdapter {
     }
 
 
-
     static class ViewHolder {
         @BindView(R.id.user_avatar)
         CircleImageView mUserAvatar;
@@ -152,10 +164,14 @@ public class ActivityListAdapter extends BaseAdapter {
         TextView mPublishedTime;
         @BindView(R.id.activity_title)
         TextView mActivityTitle;
-        @BindView(activity_content)
+        @BindView(R.id.activity_content)
         TextView mActivityContent;
         @BindView(R.id.activity_image)
         ImageView mActivityImage;
+        @BindView(R.id.picture_group)
+        PictureView mPictureGroup;
+        @BindView(R.id.participate_user)
+        ImageView mParticipateUser;
         @BindView(R.id.participant_count)
         TextView mParticipantCount;
         @BindView(R.id.wisher_count)
@@ -171,6 +187,5 @@ public class ActivityListAdapter extends BaseAdapter {
             ButterKnife.bind(this, view);
         }
     }
-
 }
 

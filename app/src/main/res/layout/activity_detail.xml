@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="#fff">
+        android:background="@color/title_color">
         <!--标题栏自定义布局-->
         <TextView
             android:id="@+id/title_name"
@@ -41,14 +41,16 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="1dp"
                 android:background="#D7D7D7"/>
             <!--活动头图-->
             <ImageView
                 android:id="@+id/activity_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="centerInside"/>
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"/>
+
    <!--         <com.android.tool.PictureView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:paddingRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="4dp"
                 android:text="2017-03-12"/>
             <View
                 android:layout_width="match_parent"
@@ -206,7 +209,7 @@
                 android:text="10月10日"/>
         </LinearLayout>
 
-        <!--地图-->
+        <!--活动地点-->
         <LinearLayout
             android:id="@+id/ll_to_map"
             android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -230,7 +233,7 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
-                android:text="查看地图"/>
+                android:text="活动地点"/>
             <TextView
                 android:id="@+id/activity_address"
                 android:layout_width="0dp"
@@ -244,7 +247,71 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/detail_expand"/>
         </LinearLayout>
+        <!--发起人-->
+        <LinearLayout
+            android:id="@+id/ll_to_creater_page"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bg_edittext_selector"
+            android:gravity="center_vertical"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_at"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="发起人"/>
+            <TextView
+                android:id="@+id/publisher_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_expand"/>
+        </LinearLayout>
+        <!--参与者-->
+        <LinearLayout
+            android:id="@+id/ll_to_participate"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bg_edittext_selector"
+            android:gravity="center_vertical"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_person"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp"
+                android:textColor="#444444"
+                android:textSize="20sp"
+                android:text="参与者"/>
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/detail_expand"/>
+        </LinearLayout>
         <!--费用-->
         <LinearLayout
             android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -268,7 +335,7 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
-                android:text="人均"/>
+                android:text="预计人均"/>
             <TextView
                 android:id="@+id/activity_fee"
                 android:layout_width="wrap_content"
@@ -306,40 +373,6 @@
                 android:text="20人"/>
         </LinearLayout>-->
 
-        <!--发起人-->
-        <LinearLayout
-            android:id="@+id/ll_to_creater_page"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="@drawable/bg_edittext_selector"
-            android:gravity="center_vertical"
-            android:paddingBottom="7dp"
-            android:paddingTop="7dp">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/detail_at"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="4dp"
-                android:textColor="#444444"
-                android:textSize="20sp"
-                android:text="活动发起人"/>
-            <TextView
-                android:id="@+id/publisher_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/detail_expand"/>
-        </LinearLayout>
 
         <!--通知-->
         <LinearLayout
@@ -366,7 +399,7 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="#444444"
                 android:textSize="20sp"
-                android:text="通知"/>
+                android:text="活动通知"/>
             <TextView
                 android:id="@+id/notification_count"
                 android:layout_width="wrap_content"

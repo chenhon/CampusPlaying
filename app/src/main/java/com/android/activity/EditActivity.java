@@ -17,8 +17,7 @@ import android.widget.Toast;
 
 import com.android.GlobalApplication;
 import com.android.R;
-import com.android.guide.BaseActivity;
-import com.android.lbs.SetLocationActivity;
+import com.android.BaseActivity;
 import com.android.tool.AddTagDialog;
 import com.android.tool.AskSavePopMenu;
 import com.android.tool.BitmapLoaderUtil;
@@ -215,8 +214,8 @@ public class EditActivity extends BaseActivity {
         mAddressSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(EditActivity.this, SetLocationActivity.class);
-                EditActivity.this.startActivityForResult(intent, SET_ADDRESS);
+                /*Intent intent = new Intent(EditActivity.this, SetLocationActivity.class);
+                EditActivity.this.startActivityForResult(intent, SET_ADDRESS);*/
             }
         });
         mActivityTypeSet.setOnClickListener(new View.OnClickListener() {

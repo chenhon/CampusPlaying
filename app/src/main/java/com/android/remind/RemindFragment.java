@@ -53,6 +53,10 @@ public class RemindFragment extends Fragment {
     LinearLayout mLlToSystemNotify;
     @BindView(R.id.msgsPullListView)
     PullToRefreshListView mMsgsPullListView;
+    @BindView(R.id.comment_no_read_num)
+    TextView mCommentNoReadNum;
+    @BindView(R.id.system_msg_no_read_num)
+    TextView mSystemMsgNoReadNum;
 
     private PrivateListAdapter privateAdapter;
     private ListView privatesListView;
@@ -63,6 +67,11 @@ public class RemindFragment extends Fragment {
 
     private int loadPage = 0;//已加载的页数
     private int privateTotal;//私信列表总条数
+
+    private int privateCount;   //未读私信数(系统消息 + 私信)
+    private int systemCount;    //未读系统消息
+    private int commentCount;   //未读评论数
+    private boolean isGettingNewMag = false; //是否正在获取新消息数目
 
     private static final int REFRESH_COMPLETE = 1;//进入用户登录页
     private static final int DELAY_MILLIS = 1000; //1s延时
@@ -111,7 +120,7 @@ public class RemindFragment extends Fragment {
         privatesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {   //进入聊天界面
-                CommunicateActivity.startActivityForResult(getActivity(), MainNavigationActivity.REFRESH_REMIND_INFO,privateAdapter.getTargetId(position - 1),privateAdapter.getTargetAvatarId(position - 1), privateAdapter.getTargetName(position - 1));
+                CommunicateActivity.startActivityForResult(getActivity(), MainNavigationActivity.REFRESH_REMIND_INFO, privateAdapter.getTargetId(position - 1), privateAdapter.getTargetAvatarId(position - 1), privateAdapter.getTargetName(position - 1));
             }
         });
 /*        privatesListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -126,7 +135,7 @@ public class RemindFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SystemMessageActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                getActivity().startActivity(intent);
+                getActivity().startActivityForResult(intent, MainNavigationActivity.REFRESH_REMIND_INFO);
             }
         });
         //进入评论列表
@@ -134,7 +143,7 @@ public class RemindFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CommentListActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                getActivity().startActivity(intent);
+                getActivity().startActivityForResult(intent, MainNavigationActivity.REFRESH_REMIND_INFO);
             }
         });
         mMsgsPullListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
@@ -156,15 +165,15 @@ public class RemindFragment extends Fragment {
 
     private void getPrivateListData() {
         if ((privateTotal != 0) && (loadPage * LOAD_DATA_COUNT >= privateTotal)) {
-           // mMsgsPullListView.onRefreshComplete();       //马上调用就会有消不掉转圈的bug
+            // mMsgsPullListView.onRefreshComplete();       //马上调用就会有消不掉转圈的bug
             mHandler.sendEmptyMessageDelayed(REFRESH_COMPLETE, DELAY_MILLIS);
             return;
         }
-        mMsgsPullListView.setRefreshing(true);
+        // mMsgsPullListView.setRefreshing(true);
         if (networkStatus.isConnectInternet()) {
 
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
-                    .with("page", String.valueOf(loadPage+1))
+                    .with("page", String.valueOf(loadPage + 1))
                     .with("count", String.valueOf(LOAD_DATA_COUNT)); //每页条数
             VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
                     .with("token", GlobalApplication.getToken())
@@ -182,8 +191,8 @@ public class RemindFragment extends Fragment {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("getTIMELINE:TAG", "出错");
-                            Log.d("getTIMELINE:TAG", error.getMessage(), error);
+                            /*Log.d("getTIMELINE:TAG", "出错");
+                            Log.d("getTIMELINE:TAG", error.getMessage(), error);*/
                             mMsgsPullListView.onRefreshComplete();//结束刷新图标
                         }
                     });
@@ -204,8 +213,12 @@ public class RemindFragment extends Fragment {
         loadPage = 0;
         privateTotal = 0;
         privateAdapter.clearPrivateListItem();
+        System.out.println("列表item数：" + privateAdapter.getCount());
+        //  privateAdapter.notifyDataSetChanged();
+        //  mMsgsPullListView.setRefreshing(true);
         getPrivateListData();
     }
+
     /**
      * json数据转换成状态item并设置adapter
      *
@@ -220,7 +233,10 @@ public class RemindFragment extends Fragment {
             for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
                 //适配器中添加数据项
                 JSONObject jo = jsonArr.getJSONObject(i);
-                if(jo.getInt("target_id") == -255){  //管理员发布的(过滤掉)
+                if (jo.getInt("target_id") == -255) {  //管理员发布的(过滤掉)
+                    systemCount = jo.getInt("private_count");    //系统消息未读条数提醒设置
+                    setSystemMsgCount(systemCount);
+                    getNewMsgCount();
                     continue;
                 }
                 PrivateMsg pm = new PrivateMsg();
@@ -234,7 +250,7 @@ public class RemindFragment extends Fragment {
                 privateAdapter.addPrivateListItem(pm);
             }
             privateAdapter.notifyDataSetChanged();
-            if(jsonArr.length() > 0) {
+            if (jsonArr.length() > 0) {
                 loadPage++;
             }
 
@@ -244,6 +260,70 @@ public class RemindFragment extends Fragment {
             Log.d("PrivateList:TAG", e.toString());
         }
 
+    }
+
+    private void setSystemMsgCount(int noReadCnt) {
+        if(0 == noReadCnt) {
+            mSystemMsgNoReadNum.setVisibility(View.GONE);
+        } else if(noReadCnt <= 99){
+            mSystemMsgNoReadNum.setVisibility(View.VISIBLE);
+            mSystemMsgNoReadNum.setText(String.valueOf(noReadCnt));//有未读消息
+        } else {
+            mSystemMsgNoReadNum.setVisibility(View.VISIBLE);
+            mSystemMsgNoReadNum.setText("99+");//有未读消息
+        }
+    }
+    private void setCommentCount(int noReadCnt) {
+        if(0 == noReadCnt) {
+            mCommentNoReadNum.setVisibility(View.GONE);
+        } else if(noReadCnt <= 99){
+            mCommentNoReadNum.setVisibility(View.VISIBLE);
+            mCommentNoReadNum.setText(String.valueOf(noReadCnt));//有未读消息
+        } else {
+            mCommentNoReadNum.setVisibility(View.VISIBLE);
+            mCommentNoReadNum.setText("99+");//有未读消息
+        }
+    }
+    public void getNewMsgCount() {
+        if(isGettingNewMag){
+            return ;
+        }
+        isGettingNewMag = true;
+        if (networkStatus.isConnectInternet()) {
+            String rootString = getActivity().getResources().getString(R.string.ROOT) + "msg/count";
+            VolleyRequestParams headerParams = new VolleyRequestParams() //URL上的参数
+                    .with("token", GlobalApplication.getToken())
+                    .with("Accept", "application/json"); // 数据格式设置为json
+            MyStringRequest mStringRequest = new MyStringRequest(Request.Method.GET, rootString, headerParams, null,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            isGettingNewMag = false;
+                            Log.d("getRemindNum:TAG", response);
+                            try{
+                                JSONObject jo = new JSONObject(response);
+                                privateCount = jo.getInt("privates_count");
+                                commentCount = jo.getInt("coments_count");
+                                setCommentCount(commentCount);
+                                ((MainNavigationActivity)getActivity()).setBadgeNum(privateCount + commentCount);//设置数字提醒
+                            } catch (Exception e){}
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            isGettingNewMag = false;
+                            Log.d("getRemindNum:TAG", "出错");
+
+                        }
+                    });
+
+            mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
+            GlobalApplication.get().getRequestQueue().add(mStringRequest);
+        } else {
+            isGettingNewMag = false;
+            Toast.makeText(getActivity(), getResources().getString(R.string.network_fail).toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

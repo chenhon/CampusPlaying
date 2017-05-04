@@ -11,10 +11,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.GlobalApplication;
 import com.android.R;
 import com.android.adapter.PictureListAdapter;
-import com.android.guide.BaseActivity;
-import com.android.GlobalApplication;
+import com.android.BaseActivity;
 import com.android.tool.MyStringRequest;
 import com.android.tool.NetworkConnectStatus;
 import com.android.tool.RequestManager;
@@ -92,8 +92,10 @@ public class ListActivity extends BaseActivity {
             this.aid = bundle.getInt("aid");//活动id
             this.activityStatus = bundle.getInt("status");//活动的状态
             this.relation = bundle.getBoolean("relation");//活动与用户的关系
-            if((this.activityStatus == 2) && (relation == true)) { //只有活动结束，活动参与者可以上传照片
+            if(relation == true) { //活动参与者可以上传照片
                 mAddBtn.setVisibility(View.VISIBLE); //活动发布者可以添加通知
+            } else {
+                mAddBtn.setVisibility(View.GONE);
             }
         }
         rootString = getResources().getString(R.string.ROOT);
@@ -101,7 +103,13 @@ public class ListActivity extends BaseActivity {
         pictureAdapter = new PictureListAdapter(this);
         mLvPicture.setAdapter(pictureAdapter);
         setListener();
-        getPictureListData();
+    //    getPictureListData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshData();
     }
 
     /**
@@ -109,9 +117,9 @@ public class ListActivity extends BaseActivity {
      */
     private void getPictureListData() {
         if ((notificationTotal != 0) && (loadPage * LOAD_DATA_COUNT >= notificationTotal)) {
-            mSwipyrefreshlayout.setRefreshing(false);
+          //  mSwipyrefreshlayout.setRefreshing(false);
             Toast.makeText(this, "通知已加载完", Toast.LENGTH_SHORT).show();
-            return;
+          //  return;
         }
         if (networkStatus.isConnectInternet()) {
             VolleyRequestParams urlParams = new VolleyRequestParams() //URL上的参数
@@ -133,6 +141,7 @@ public class ListActivity extends BaseActivity {
                                     mTvEmptyview.setVisibility(View.VISIBLE);
                                     return;
                                 }
+                                mTvEmptyview.setVisibility(View.GONE);
                                 JSONArray jsonArr = jsonObject.getJSONArray("photos");
                                 Log.d("getPICTURE:TAG", String.valueOf(jsonArr.length()));
                                 for (int i = 0; i < jsonArr.length(); i++) {//前10条数据
@@ -148,8 +157,6 @@ public class ListActivity extends BaseActivity {
 
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.d("getPICTURE:TAG", "出错");
-                                Log.d("getPICTURE:TAG", e.toString());
                             }
                         }
                     },
@@ -157,8 +164,8 @@ public class ListActivity extends BaseActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             mSwipyrefreshlayout.setRefreshing(false);
-                            Log.d("getPICTURE:TAG", "出错");
-                            Log.d("getPICTURE:TAG", error.getMessage(), error);
+                           /* Log.d("getPICTURE:TAG", "出错");
+                            Log.d("getPICTURE:TAG", error.getMessage(), error);*/
                         }
                     });
             mStringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_TIMEOUT_MS));
@@ -176,6 +183,8 @@ public class ListActivity extends BaseActivity {
             public void onRefresh(SwipyRefreshLayoutDirection direction) {
                 if (direction == SwipyRefreshLayoutDirection.BOTTOM) {
                     getPictureListData();
+                } else if (direction == SwipyRefreshLayoutDirection.TOP) {
+                    refreshData();
                 }
 //                Toast.makeText(getContext(),
 //                        "Refresh triggered at "
@@ -207,4 +216,15 @@ public class ListActivity extends BaseActivity {
             }
         });
     }
+
+    /**
+     * 刷新，直接清掉所有数据然后再重新加载
+     */
+    private void refreshData() {
+        pictureAdapter.clearListData();//清楚数据
+        loadPage = 0;
+        notificationTotal = 0;
+        getPictureListData();
+    }
+
 }
